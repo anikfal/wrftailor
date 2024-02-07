@@ -1,0 +1,43 @@
+Provide the paths to the WRF files and your smallest domain in case of nested domains. The new value will be replaced
+in all values of the variable in the domain(s).
+----------------------------------------------
+
+Variable                       = E_NH3
+New_value                      = 10
+Number_of_domains              = 3
+Domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
+Domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
+Domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
+Domain_4                       =
+Domain_5                       =
+
+
+========================== Modify by shapefile ==============================
+=============================================================================
+shapefile_ON_OFF                = 1
+path_to_shapefile               = 3
+-----------------------------------------------------------------------------
+
+
+=================== Modify by the whole smallest domain =====================
+=============================================================================
+whole_domain_ON_OFF             = 1
+-----------------------------------------------------------------------------
+
+
+========================== Modify by bounding box ===========================
+=============================================================================
+bounding_box_ON_OFF             = 1
+north_lat                       = 3
+south_lat                       = 3
+west_long                       = 3
+east_long                       = 3
+-----------------------------------------------------------------------------
+
+
+========================= Modify by list of points ==========================
+=============================================================================
+points_list_ON_OFF              = 1
+latitudes_list                  = 33.40, 36.20
+longitudes_list                 = 51.78, 52.30
+-----------------------------------------------------------------------------
