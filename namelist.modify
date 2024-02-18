@@ -1,12 +1,12 @@
 ====================== Main variables and input data ========================
 =============================================================================
 wrf_variable                   = E_NH3
-new_value                      = 10
+wrf_replacement_variable       = (E_NH3 * 3 ) + E_SO2/2
 number_of_domains              = 3
 domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
 domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
-domain_4                       =
+domain_4                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemiiii
 domain_5                       =
 -----------------------------------------------------------------------------
 
