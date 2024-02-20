@@ -32,8 +32,9 @@ export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.modify | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.modify | tr -d " ")
 
 # echo $wrf_replacement_variable
-echo $wrf_replacement_variable > $app_dir"/modules/totalequation.txt"
-cd $app_dir/modules; ncl separation.ncl > /dev/null
+echo $wrf_replacement_variable >$app_dir"/modules/totalequation.txt"
+cd $app_dir/modules
+ncl separation.ncl >/dev/null
 
 if [[ $wholeonoff == 1 ]]; then
     filename="whole_domain.ncl"
@@ -49,7 +50,7 @@ if [[ $wholeonoff == 1 ]]; then
         mm=$((mm + 1))
     done
     equation=$(cat totalequation.txt)
-    sed '/equation from namelist.wrf/ a tc2 = '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
+    sed '/equation from namelist.wrf/ a polynomial = '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
     mv $filename_copy $filename
     ncl -Qn whole_domain.ncl
 fi

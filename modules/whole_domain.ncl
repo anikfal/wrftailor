@@ -1,4 +1,5 @@
 file_list = NewList("lifo")
+number_of_domains = tointeger(getenv("number_of_domains"))
 
 dom111file=getenv("domain_1")
 if (fileexists(dom111file)) then
@@ -44,28 +45,27 @@ varlist = NewList("lifo")
 
 ii=0
 do while(ii.lt.totvars) ;code aaff
-    ListAppend(varlist, wrf_user_getvar(dom333, NCLvarnames(ii), -1))
+    ListAppend(varlist, wrf_user_getvar(file_list[number_of_domains-1], NCLvarnames(ii), -1))
     ii = ii+1
 end do
 
-number_of_domains = getenv("number_of_domains")
-
-dom333lat = dom333->XLAT
-dom333long = dom333->XLONG
+dom333lat = file_list[number_of_domains-1]->XLAT
+dom333long = file_list[number_of_domains-1]->XLONG
 wrfvariable = getenv("wrf_variable")
-cc_var = dom333->$wrfvariable$
+smallest_dom_var = file_list[number_of_domains-1]->$wrfvariable$
 
 ;;;shell script
 E_SO2 = varlist[1]  ;;;added_new_line_by_sed
 E_NH3 = varlist[0]  ;;;added_new_line_by_sed
 
 ;;;equation from namelist.wrf
-tc2 = (E_NH3*3)+E_SO2/2  ;;;added_new_line_by_sed
+polynomial = (E_NH3*0)+E_SO2/2*0+5  ;;;added_new_line_by_sed
 
-copy_VarAtts(cc_var, tc2)
-copy_VarCoords(cc_var, tc2)
-printVarSummary(tc2)
-dom333->$wrfvariable$ = tc2
+
+copy_VarAtts(smallest_dom_var, polynomial)
+copy_VarCoords(smallest_dom_var, polynomial)
+printVarSummary(polynomial)
+dom333->$wrfvariable$ = polynomial
 
 
 
@@ -86,7 +86,7 @@ aa_var = dom111->$wrfvariable$
 dims = dimsizes(dom333lat)
 cc_lat_unstr = fspan(min(dom333lat),max(dom333lat),dims(1))
 cc_lon_unstr = fspan(min(dom333long),max(dom333long),dims(0))
-grd_unsrt  = rcm2rgrid_Wrap(dom333lat, dom333long, cc_var, cc_lat_unstr, cc_lon_unstr, 1)
+grd_unsrt  = rcm2rgrid_Wrap(dom333lat, dom333long, smallest_dom_var, cc_lat_unstr, cc_lon_unstr, 1)
 
 grid_2d_new000 = rgrid2rcm_Wrap(cc_lat_unstr, cc_lon_unstr, grd_unsrt, dom222lat, dom222long, 1)
 grid_2d_new = where(ismissing(grid_2d_new000), 1, grid_2d_new000)
