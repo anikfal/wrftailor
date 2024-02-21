@@ -3,41 +3,36 @@ number_of_domains = tointeger(getenv("number_of_domains"))
 
 dom111file=getenv("domain_1")
 if (fileexists(dom111file)) then
-    dom111=addfile(dom111file, "w")
+ListAppend(file_list, addfile(dom111file, "w"))
 else
     print("Error!")
     print(dom111file + " is not a valid file for domain 1")
     exit()
 end if
-ListAppend(file_list, dom111)
 dom222file = getenv("domain_2")
 if (fileexists(dom222file)) then
-    dom222=addfile(dom222file, "w")
+    ListAppend(file_list, addfile(dom222file, "w"))
 else
-    dom222 = "no_file"
+    ListAppend(file_list, "no_file")
 end if
-ListAppend(file_list, dom222)
 dom333file = getenv("domain_3")
 if (fileexists(dom333file)) then
-    dom333=addfile(dom333file, "w")
+    ListAppend(file_list, addfile(dom333file, "w"))
 else
-    dom333 = "no_file"
+    ListAppend(file_list, "no_file")
 end if
-ListAppend(file_list, dom333)
 dom444file = getenv("domain_4")
 if (fileexists(dom444file)) then
-    dom444=addfile(dom444file, "w")
+    ListAppend(file_list, addfile(dom444file, "w"))
 else
     dom444 = "no_file"
 end if
-ListAppend(file_list, dom444)
 dom555file = getenv("domain_5")
 if (fileexists(dom555file)) then
-    dom555=addfile(dom555file, "w")
+    ListAppend(file_list, addfile(dom555file, "w"))
 else
-    dom555 = "no_file"
+    ListAppend(file_list, "no_file")
 end if
-ListAppend(file_list, dom555)
 
 NCLvarnames = asciiread("variables.txt", -1, "string")
 totvars = dimsizes(NCLvarnames)
@@ -49,10 +44,9 @@ do while(ii.lt.totvars) ;code aaff
     ii = ii+1
 end do
 
-dom333lat = file_list[number_of_domains-1]->XLAT
-dom333long = file_list[number_of_domains-1]->XLONG
+lat_small = file_list[number_of_domains-1]->XLAT
+long_small = file_list[number_of_domains-1]->XLONG
 wrfvariable = getenv("wrf_variable")
-smallest_dom_var = file_list[number_of_domains-1]->$wrfvariable$
 
 ;;;shell script
 E_SO2 = varlist[1]  ;;;added_new_line_by_sed
@@ -62,11 +56,21 @@ E_NH3 = varlist[0]  ;;;added_new_line_by_sed
 polynomial = (E_NH3*0)+E_SO2/2*0+5  ;;;added_new_line_by_sed
 
 
-copy_VarAtts(smallest_dom_var, polynomial)
-copy_VarCoords(smallest_dom_var, polynomial)
-printVarSummary(polynomial)
-dom333->$wrfvariable$ = polynomial
+copy_VarAtts(file_list[number_of_domains-1]->$wrfvariable$, polynomial)
+copy_VarCoords(file_list[number_of_domains-1]->$wrfvariable$, polynomial)
+filefromlist = file_list[number_of_domains-1]
+filefromlist->$wrfvariable$ = polynomial
+file_list[number_of_domains-1] = filefromlist
 
+; printVarSummary(file_list[number_of_domains-1]->$wrfvariable$)
+; printMinMax(file_list[number_of_domains-1]->$wrfvariable$, 0)
+
+
+ii = number_of_domains
+do while(ii .gt. 0)
+    ii = ii - 1
+    print("ii: " + ii)
+end do
 
 
 
@@ -83,10 +87,10 @@ dom111lon = dom111->XLONG
 bb_var = dom222->$wrfvariable$
 aa_var = dom111->$wrfvariable$
 
-dims = dimsizes(dom333lat)
-cc_lat_unstr = fspan(min(dom333lat),max(dom333lat),dims(1))
-cc_lon_unstr = fspan(min(dom333long),max(dom333long),dims(0))
-grd_unsrt  = rcm2rgrid_Wrap(dom333lat, dom333long, smallest_dom_var, cc_lat_unstr, cc_lon_unstr, 1)
+dims = dimsizes(lat_small)
+cc_lat_unstr = fspan(min(lat_small),max(lat_small),dims(1))
+cc_lon_unstr = fspan(min(long_small),max(long_small),dims(0))
+grd_unsrt  = rcm2rgrid_Wrap(lat_small, long_small, file_list[number_of_domains-1]->$wrfvariable$, cc_lat_unstr, cc_lon_unstr, 1)
 
 grid_2d_new000 = rgrid2rcm_Wrap(cc_lat_unstr, cc_lon_unstr, grd_unsrt, dom222lat, dom222long, 1)
 grid_2d_new = where(ismissing(grid_2d_new000), 1, grid_2d_new000)
@@ -104,5 +108,5 @@ copy_VarAtts(aa_var, Anewvar)
 dom111->$wrfvariable$ = Anewvar
 delete(dom222)
 delete(dom111)
-delete(dom333)
+delete(file_list[number_of_domains-1])
 print("End of NCL code")
