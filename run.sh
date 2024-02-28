@@ -2,7 +2,7 @@
 
 export app_dir=$(pwd)
 awk_read_onoff() {
-    awk -v pat=$1 '$0~pat {print $3}' namelist.modify
+    awk -v pat=$1 '$0~pat {print $3}' namelist.tailor
 }
 
 shapeonoff=$(awk_read_onoff shapefile_ON_OFF)
@@ -13,7 +13,7 @@ wholeonoff=$(awk_read_onoff whole_domain_ON_OFF)
 sumopts=$((shapeonoff + boundonoff + pointsonoff + wholeonoff))
 if [[ $sumopts -gt 1 ]]; then
     echo "  Warning: more than one task is enabled"
-    echo "  Select only one task in namelist.modify and run again"
+    echo "  Select only one task in namelist.tailor and run again"
     exit
 fi
 if [[ $sumopts -eq 0 ]]; then
@@ -22,14 +22,20 @@ if [[ $sumopts -eq 0 ]]; then
     exit
 fi
 
-export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.modify | tr -d " ")
-export wrf_replacement_variable=$(sed -n "/wrf_replacement_variable/s/.*=//p" namelist.modify | tr -d " ")
-export number_of_domains=$(sed -n "/number_of_domains/s/.*=//p" namelist.modify | tr -d " ")
-export domain_1=$(sed -n "/domain_1/s/.*=//p" namelist.modify | tr -d " ")
-export domain_2=$(sed -n "/domain_2/s/.*=//p" namelist.modify | tr -d " ")
-export domain_3=$(sed -n "/domain_3/s/.*=//p" namelist.modify | tr -d " ")
-export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.modify | tr -d " ")
-export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.modify | tr -d " ")
+export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.tailor | tr -d " ")
+export wrf_replacement_variable=$(sed -n "/wrf_replacement_variable/s/.*=//p" namelist.tailor | tr -d " ")
+export number_of_domains=$(sed -n "/number_of_domains/s/.*=//p" namelist.tailor | tr -d " ")
+if [[ $number_of_domains -gt 5 ]]; then
+    echo Warning!
+    echo number_of_domains cannot be more than 5
+    echo set the correct number_of_domains and run again
+    exit
+fi
+export domain_1=$(sed -n "/domain_1/s/.*=//p" namelist.tailor | tr -d " ")
+export domain_2=$(sed -n "/domain_2/s/.*=//p" namelist.tailor | tr -d " ")
+export domain_3=$(sed -n "/domain_3/s/.*=//p" namelist.tailor | tr -d " ")
+export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
+export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
 # echo $wrf_replacement_variable
 echo $wrf_replacement_variable >$app_dir"/modules/totalequation.txt"
@@ -45,19 +51,19 @@ if [[ $wholeonoff == 1 ]]; then
     mm=0
     while [ $mm -lt $count ]; do
         onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        sed '/shell script/ a '${onevar[$mm]}' = varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
         mv $filename_copy $filename
         mm=$((mm + 1))
     done
     equation=$(cat totalequation.txt)
-    sed '/equation from namelist.wrf/ a polynomial = '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
+    sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
     mv $filename_copy $filename
     ncl -Qn whole_domain.ncl
 fi
 
 if [[ $shapeonoff == 1 ]]; then
     myvar="path_to_shapefile"
-    export shape_path=$(sed -n "/$myvar/s/.*=//p" namelist.modify | tr -d " ")
+    export shape_path=$(sed -n "/$myvar/s/.*=//p" namelist.tailor | tr -d " ")
     unset myvar
 fi
 
