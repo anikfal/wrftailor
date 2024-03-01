@@ -42,7 +42,7 @@ do while(ii .gt. 0)
     newlat := file_list[ii]->XLAT
     newlong := file_list[ii]->XLONG
     ; newvar := file_list[ii]->$wrfvariable$
-varlist = NewList("lifo")
+    varlist = NewList("lifo")
     jj=0
     do while(jj.lt.totvars) ;code aaff
         ListAppend(varlist, wrf_user_getvar(file_list[ii], NCLvarnames(jj), -1))
@@ -55,18 +55,17 @@ E_NH3 := varlist[0]  ;;;added_new_line_by_sed
 polynomial := (E_NH3*0)+E_SO2/2*0+7  ;;;added_new_line_by_sed
 
     small2next := rgrid2rcm_Wrap(lats_unstr, lons_unstr, grd_unsrt, newlat, newlong, 1)
-    small2next = 0
-    small2next000 := where(ismissing(small2next), 1, small2next)
-    small2next = 1
-    small2next111 := where(ismissing(small2next), 0, small2next)
+
+    ; small2next = 0
+    ; small2next000 := where(ismissing(small2next), 1, small2next)
+    ; small2next = 1
+    ; small2next111 := where(ismissing(small2next), 0, small2next)
 
     filefromlist := file_list[ii]
-    var_default := filefromlist->$wrfvariable$ * small2next111
-    filefromlist->$wrfvariable$ = (polynomial * small2next000) + var_default + 1000
-    file_list[ii] = filefromlist
-    ; file_list[ii] = polynomial
-    ; printVarSummary(file_list[ii])
-    ; printVarSummary(filefromlist)
+    ; var_default := filefromlist->$wrfvariable$ * small2next111
+    ; filefromlist->$wrfvariable$ = (polynomial * small2next000) + var_default + 1000
+    filefromlist->$wrfvariable$ = small2next
+    ; file_list[ii] = filefromlist
     print("ii: " + ii)
 exit()
 end do
