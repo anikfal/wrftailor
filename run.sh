@@ -1,4 +1,5 @@
 #!/bin/bash
+# Contact person: Amirhossein Nikfal <https://github.com/anikfal>
 
 export app_dir=$(pwd)
 awk_read_onoff() {
@@ -9,7 +10,6 @@ shapeonoff=$(awk_read_onoff shapefile_ON_OFF)
 boundonoff=$(awk_read_onoff bounding_box_ON_OFF)
 pointsonoff=$(awk_read_onoff points_list_ON_OFF)
 wholeonoff=$(awk_read_onoff whole_domain_ON_OFF)
-
 sumopts=$((shapeonoff + boundonoff + pointsonoff + wholeonoff))
 if [[ $sumopts -gt 1 ]]; then
     echo "  Warning: more than one task is enabled"
@@ -37,7 +37,6 @@ export domain_3=$(sed -n "/domain_3/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
-# echo $wrf_replacement_variable
 echo $wrf_replacement_variable >$app_dir"/modules/totalequation.txt"
 cd $app_dir/modules
 ncl separation.ncl >/dev/null
@@ -66,7 +65,3 @@ if [[ $shapeonoff == 1 ]]; then
     export shape_path=$(sed -n "/$myvar/s/.*=//p" namelist.tailor | tr -d " ")
     unset myvar
 fi
-
-# domain_1=/home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
-# domain_2=/home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
-# domain_3=/home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
