@@ -1,7 +1,5 @@
 ====================== Main variables and input data ========================
 =============================================================================
-wrf_variable                   = E_NH3
-wrf_replacement_variable       = (E_NH3 * 3 ) + E_SO2/2
 number_of_domains              = 3
 domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
 domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
@@ -14,29 +12,43 @@ domain_5                       =
 ========================== Modify by shapefile ==============================
 =============================================================================
 shapefile_ON_OFF                = 0
-path_to_shapefile               = /home/anikfal/Documents/shapefiles/province.shp
+ path_to_shapefile              = /home/anikfal/Documents/shapefiles/province.shp
 -----------------------------------------------------------------------------
 
 
 ========================== Modify by bounding box ===========================
 =============================================================================
 bounding_box_ON_OFF             = 0
-north_lat                       = 3
-south_lat                       = 3
-west_long                       = 3
-east_long                       = 3
+ north_lat                      = 3
+ south_lat                      = 3
+ west_long                      = 3
+ east_long                      = 3
 -----------------------------------------------------------------------------
 
 
 ========================= Modify by list of points ==========================
 =============================================================================
 points_list_ON_OFF              = 0
-latitudes_list                  = 33.40, 36.20
-longitudes_list                 = 51.78, 52.30
+ latitudes_list                 = 33.40, 36.20
+ longitudes_list                = 51.78, 52.30
 -----------------------------------------------------------------------------
 
 
 =================== Modify by the whole smallest domain =====================
 =============================================================================
-whole_domain_ON_OFF             = 1
+whole_domain_ON_OFF             = 0
+ wrf_variable                   = E_NH3
+ wrf_new_variable               = (E_NH3 * 1 ) + E_SO2/2 + 100
+-----------------------------------------------------------------------------
+
+
+===================== Replacement by a GeoTIFF file ========================
+=============================================================================
+geotiff_replace_ON_OFF           = 1
+ geotiff_file                    = /home/anikfal/extra_codes/SR
+ wrf_variable                    = E_NO
+ wrf_value                       = 3
+ range_of_values_ON_OFF          = 1
+  min_value                      = 3
+  max_value                      = 5
 -----------------------------------------------------------------------------

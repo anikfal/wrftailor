@@ -10,7 +10,8 @@ shapeonoff=$(awk_read_onoff shapefile_ON_OFF)
 boundonoff=$(awk_read_onoff bounding_box_ON_OFF)
 pointsonoff=$(awk_read_onoff points_list_ON_OFF)
 wholeonoff=$(awk_read_onoff whole_domain_ON_OFF)
-sumopts=$((shapeonoff + boundonoff + pointsonoff + wholeonoff))
+geotiffonoff=$(awk_read_onoff geotiff_replace_ON_OFF)
+sumopts=$((shapeonoff + boundonoff + pointsonoff + wholeonoff + geotiffonoff))
 if [[ $sumopts -gt 1 ]]; then
     echo "  Warning: more than one task is enabled"
     echo "  Select only one task in namelist.tailor and run again"
@@ -22,8 +23,6 @@ if [[ $sumopts -eq 0 ]]; then
     exit
 fi
 
-export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.tailor | tr -d " ")
-export wrf_replacement_variable=$(sed -n "/wrf_replacement_variable/s/.*=//p" namelist.tailor | tr -d " ")
 export number_of_domains=$(sed -n "/number_of_domains/s/.*=//p" namelist.tailor | tr -d " ")
 if [[ $number_of_domains -gt 5 ]]; then
     echo Warning!
@@ -37,11 +36,12 @@ export domain_3=$(sed -n "/domain_3/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
-echo $wrf_replacement_variable >$app_dir"/modules/totalequation.txt"
-cd $app_dir/modules
-ncl separation.ncl >/dev/null
-
 if [[ $wholeonoff == 1 ]]; then
+    export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.tailor | awk 'NR==1' | tr -d " ")
+    export wrf_new_variable=$(sed -n "/wrf_new_variable/s/.*=//p" namelist.tailor | tr -d " ")
+    echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
+    cd $app_dir/modules
+    ncl separation.ncl >/dev/null
     filename="whole_domain.ncl"
     filename_copy=$filename"_copy"
     sed '/added_new_line_by_sed/ d' $filename >$filename_copy #cleaning previous vars added by sed
@@ -61,7 +61,16 @@ if [[ $wholeonoff == 1 ]]; then
 fi
 
 if [[ $shapeonoff == 1 ]]; then
-    myvar="path_to_shapefile"
-    export shape_path=$(sed -n "/$myvar/s/.*=//p" namelist.tailor | tr -d " ")
-    unset myvar
+    export shape_path=$(sed -n "/path_to_shapefile/s/.*=//p" namelist.tailor | tr -d " ")
 fi
+
+if [[ $geotiffonoff == 1 ]]; then
+    export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.tailor | awk 'NR==2' | tr -d " ")
+    export wrf_value=$(sed -n "/wrf_value/s/.*=//p" namelist.tailor | tr -d " ")
+    range_of_values_ON_OFF=$(awk_read_onoff range_of_values_ON_OFF)
+    export min_value=$(sed -n "/min_value/s/.*=//p" namelist.tailor | tr -d " ")
+    export max_value=$(sed -n "/max_value/s/.*=//p" namelist.tailor | tr -d " ")
+fi
+
+# gdal_translate -of NetCDF dem_full375.tif dem_full375.nc
