@@ -65,12 +65,20 @@ if [[ $shapeonoff == 1 ]]; then
 fi
 
 if [[ $geotiffonoff == 1 ]]; then
+    gdal_translate --version >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Warning: gdal_translate must be installed on the system."
+        echo "Exiting ..."
+        exit
+    fi
     export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
     export wrf_variable=$(sed -n "/wrf_variable/s/.*=//p" namelist.tailor | awk 'NR==2' | tr -d " ")
-    export wrf_value=$(sed -n "/wrf_value/s/.*=//p" namelist.tailor | tr -d " ")
-    range_of_values_ON_OFF=$(awk_read_onoff range_of_values_ON_OFF)
-    export min_value=$(sed -n "/min_value/s/.*=//p" namelist.tailor | tr -d " ")
-    export max_value=$(sed -n "/max_value/s/.*=//p" namelist.tailor | tr -d " ")
+    cd $app_dir/modules
+    filename=$(basename $geotiff_file)
+    export tiff2nc=$filename".nc"
+    echo "Converting GeoTIFF to NetCDF ..."
+    # gdal_translate -of NetCDF $geotiff_file $tiff2nc
+    ncl -Q geotiff.ncl
 fi
 
 # gdal_translate -of NetCDF dem_full375.tif dem_full375.nc

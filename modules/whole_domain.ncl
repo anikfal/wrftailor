@@ -18,7 +18,7 @@ E_SO2 := varlist[1]  ;;;added_new_line_by_sed
 E_NH3 := varlist[0]  ;;;added_new_line_by_sed
 
 ;;;equation from namelist.wrf
-polynomial := (E_NH3*3)+E_SO2/2  ;;;added_new_line_by_sed
+polynomial := (E_NH3*1)+E_SO2/2+100  ;;;added_new_line_by_sed
 
 lat_small = file_list[number_of_domains-1]->XLAT
 long_small = file_list[number_of_domains-1]->XLONG
@@ -52,7 +52,7 @@ do while(ii .gt. 0)
 E_SO2 := varlist[1]  ;;;added_new_line_by_sed
 E_NH3 := varlist[0]  ;;;added_new_line_by_sed
     ;;;equation from namelist.wrf
-polynomial := (E_NH3*3)+E_SO2/2  ;;;added_new_line_by_sed
+polynomial := (E_NH3*1)+E_SO2/2+100  ;;;added_new_line_by_sed
 
     small2next := rgrid2rcm_Wrap(lats_unstr, lons_unstr, grd_unsrt, newlat, newlong, 1)
     small2next000 := where(ismissing(small2next), 1, 0)

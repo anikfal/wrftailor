@@ -45,10 +45,6 @@ whole_domain_ON_OFF             = 0
 ===================== Replacement by a GeoTIFF file ========================
 =============================================================================
 geotiff_replace_ON_OFF           = 1
- geotiff_file                    = /home/anikfal/extra_codes/SR
+ geotiff_file                    = /home/anikfal/extra_codes/SR/emissions/wrfchemi/dem_tehran.tif
  wrf_variable                    = E_NO
- wrf_value                       = 3
- range_of_values_ON_OFF          = 1
-  min_value                      = 3
-  max_value                      = 5
 -----------------------------------------------------------------------------
