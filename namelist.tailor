@@ -1,8 +1,8 @@
-====================== Main variables and input data ========================
+======================== WRF files and input data ===========================
 =============================================================================
-number_of_domains              = 3
-domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
-domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
+number_of_domains              = 2
+domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d01_2023-07-18_12:00:00
+domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d02_2023-07-18_12:00:00
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
 domain_4                       =
 domain_5                       =
@@ -45,6 +45,6 @@ whole_domain_ON_OFF             = 0
 ===================== Replacement by a GeoTIFF file ========================
 =============================================================================
 geotiff_replace_ON_OFF           = 1
- geotiff_file                    = /home/anikfal/extra_codes/SR/emissions/wrfchemi/dem_tehran.tif
- wrf_variable                    = E_NO
+ geotiff_file                    = /home/anikfal/extra_codes/emissions/wrfchemi/dem_tehran.tif
+ wrf_variable                    = T
 -----------------------------------------------------------------------------

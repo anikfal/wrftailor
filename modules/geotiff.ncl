@@ -27,15 +27,10 @@ do while(ii .gt. 0)
     end if
     print("Interpolating from the Geotiff file to the WRF file ...")
     small2next := rgrid2rcm_Wrap(lats_unstr, lons_unstr, tifvar, newlat, newlong, 1)
-    print("222222222222222222")
     filefromlist := file_list[ii]
     wrfvar := filefromlist->$wrfvariable$
     dims = dimsizes(dimsizes(wrfvar))
-    ; printVarSummary(small2next)
-    ; printVarSummary(wrfvar)
-    print("333333333333333333")
     small2next_conform := conform(wrfvar, small2next, (/dims-2,dims-1/))
-    print("444444444444444444")
     copy_VarAtts(wrfvar, small2next_conform)
     copy_VarCoords(wrfvar, small2next_conform)
     small2next_conform_inside := where(ismissing(small2next_conform), 0, small2next_conform)
