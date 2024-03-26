@@ -36,6 +36,84 @@ export domain_3=$(sed -n "/domain_3/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
+if [[ $pointsonoff == 1 ]]; then
+function countline() {
+  numlinevars=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F',' '{ print NF }')
+  ifendcomma=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F "," '{print $NF}' | tr -d " ")
+  if [[ $ifendcomma == "" ]]; then
+    numlinevars=$((numlinevars - 1))
+  fi
+}
+    export wrf_new_variable=$(sed -n "/wrf_new_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/wrf_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+
+  myvar="latitudes_list"
+  countline
+  export ncllats=$numlinevars #Zero (0) is included in the line numbers
+  #Extracting Variables into array
+  varcount=0
+  while [ $varcount -lt $ncllats ]; do
+    loclats[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+    loclats[$varcount]=$(echo ${loclats[$varcount]}) #Remove spaces
+    varcount=$((varcount + 1))
+  done
+  unset varcount
+
+  varcount=0
+  while [ $varcount -lt $ncllats ]; do
+    declare nclloclats$varcount=${loclats[$varcount]}
+    export nclloclats$varcount
+    varcount=$((varcount + 1))
+  done
+  unset myvar
+
+    myvar="longitudes_list"
+  countline
+  ncllons=$numlinevars #Zero (0) is included in the line numbers
+  if [[ $ncllats -ne $ncllons ]]; then
+    echo "Warning: latitudes_list has" $ncllats "values, but longitudes_list has" $ncllons "values. They must be equal."
+    echo Exiting ..
+    exit
+  fi
+
+  #Extracting Vairables into array
+  varcount=0
+  while [ $varcount -lt $ncllons ]; do
+    loclons[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+    loclons[$varcount]=$(echo ${loclons[$varcount]}) #Remove spaces
+    varcount=$((varcount + 1))
+  done
+  unset varcount
+
+  varcount=0
+  while [ $varcount -lt $ncllons ]; do
+    declare nclloclons$varcount=${loclons[$varcount]}
+    export nclloclons$varcount
+    varcount=$((varcount + 1))
+  done
+  unset myvar
+
+    echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
+    cd $app_dir/modules
+    ncl separation.ncl >/dev/null
+    filename="bounding.ncl"
+    filename_copy=$filename"_copy"
+    sed '/added_new_line_by_sed/ d' $filename >$filename_copy #cleaning previous vars added by sed
+    mv $filename_copy $filename                               #recycling the code to its prestine condition
+    count=$(cat variables.txt | wc -l)
+    mm=0
+    while [ $mm -lt $count ]; do
+        onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
+        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        mv $filename_copy $filename
+        mm=$((mm + 1))
+    done
+    equation=$(cat totalequation.txt)
+    sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
+    mv $filename_copy $filename
+    ncl -Qn points.ncl
+fi
+
 if [[ $wholeonoff == 1 ]]; then
     export wrf_variable=$(sed -n "/wrf_variable4/s/.*=//p" namelist.tailor | tr -d " ")
     export wrf_new_variable=$(sed -n "/wrf_new_variable4/s/.*=//p" namelist.tailor | tr -d " ")
