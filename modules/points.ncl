@@ -12,18 +12,23 @@ if (.not. isfilevar(file_list[0], wrfvariable)) then
 end if
 
 lines = tointeger(getenv("ncllats"))
-LatList = new(lines,"string")
-LongList = new(lines,"string")
+LatList = new(lines,"float")
+LongList = new(lines,"float")
+PointList = new(lines,"float")
 i=0
 do while(i.le.(lines-1))
-LatList(i) = getenv("nclloclats"+i)
-LongList(i) = getenv("nclloclons"+i)
+LatList(i) = tofloat(getenv("nclloclats"+i))
+LongList(i) = tofloat(getenv("nclloclons"+i))
+PointList(i) = tofloat(getenv("ncllocpoints"+i))
 i=i+1
 end do
 delete(lines)
 
+print(PointList)
+
 exit()
 
+grid      = triple2grid2d(LongList, LatList, PointList, lon2d, lat2d, True)
 
 
 theVariable = file_list[number_of_domains-1]->$wrfvariable$

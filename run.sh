@@ -37,15 +37,34 @@ export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
 if [[ $pointsonoff == 1 ]]; then
-function countline() {
+ function countline() {
   numlinevars=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F',' '{ print NF }')
   ifendcomma=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F "," '{print $NF}' | tr -d " ")
   if [[ $ifendcomma == "" ]]; then
     numlinevars=$((numlinevars - 1))
   fi
-}
-    export wrf_new_variable=$(sed -n "/wrf_new_variable3/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/wrf_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+ }
+  export wrf_variable=$(sed -n "/wrf_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+
+  myvar="point_values"
+  countline
+  export nclpoints=$numlinevars #Zero (0) is included in the line numbers
+  #Extracting Variables into array
+  varcount=0
+  while [ $varcount -lt $nclpoints ]; do
+    locpoints[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+    locpoints[$varcount]=$(echo ${locpoints[$varcount]}) #Remove spaces
+    varcount=$((varcount + 1))
+  done
+  unset varcount
+
+  varcount=0
+  while [ $varcount -lt $nclpoints ]; do
+    declare ncllocpoints$varcount=${locpoints[$varcount]}
+    export ncllocpoints$varcount
+    varcount=$((varcount + 1))
+  done
+  unset myvar
 
   myvar="latitudes_list"
   countline
@@ -70,8 +89,8 @@ function countline() {
     myvar="longitudes_list"
   countline
   ncllons=$numlinevars #Zero (0) is included in the line numbers
-  if [[ $ncllats -ne $ncllons ]]; then
-    echo "Warning: latitudes_list has" $ncllats "values, but longitudes_list has" $ncllons "values. They must be equal."
+  if [[ $ncllats -ne $ncllons || $ncllons -ne $nclpoints ]]; then
+    echo "Warning: Number of elements for latitudes_list, longitudes_list, and point_values are $ncllats, $ncllons, and $nclpoints. But they must be equal."
     echo Exiting ..
     exit
   fi
@@ -113,6 +132,19 @@ function countline() {
     mv $filename_copy $filename
     ncl -Qn points.ncl
 fi
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if [[ $wholeonoff == 1 ]]; then
     export wrf_variable=$(sed -n "/wrf_variable4/s/.*=//p" namelist.tailor | tr -d " ")

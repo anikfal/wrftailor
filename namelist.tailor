@@ -20,7 +20,7 @@ shapefile_ON_OFF                = 0
 
 ========================== Modify by bounding box ===========================
 =============================================================================
-bounding_box_ON_OFF             = 1
+bounding_box_ON_OFF             = 0
  wrf_variable2                  = E_NH3
  wrf_new_variable2              = (E_NH3 * 1 ) + E_SO2/2 + 100
  north_lat                      = 36
@@ -32,11 +32,11 @@ bounding_box_ON_OFF             = 1
 
 ========================= Modify by list of points ==========================
 =============================================================================
-points_list_ON_OFF              = 0
+points_list_ON_OFF              = 1
  wrf_variable3                  = E_NH3
- wrf_new_variable3              = (E_NH3 * 1 ) + E_SO2/2 + 100
- latitudes_list                 = 33.40, 36.20
- longitudes_list                = 51.78, 52.30
+ latitudes_list                 = 33.33, 34.44, 35.55,
+ longitudes_list                = 51.11, 52.22, 53.33
+ point_values                   = 10, 11, 12.2,
 -----------------------------------------------------------------------------
 
 
