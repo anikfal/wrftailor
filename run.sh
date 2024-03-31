@@ -172,6 +172,28 @@ fi
 
 if [[ $shapeonoff == 1 ]]; then
     export shape_path=$(sed -n "/path_to_shapefile/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/wrf_variable1/s/.*=//p" namelist.tailor | tr -d " ")
+    wrf_new_variable=$(sed -n "/wrf_new_variable1/s/.*=//p" namelist.tailor | tr -d " ")
+    export inverse_mask_on_off=$(awk_read_onoff inverse_mask_on_off)
+    echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
+    cd $app_dir/modules
+    ncl separation.ncl >/dev/null
+    filename="shapefile.ncl"
+    filename_copy=$filename"_copy"
+    sed '/added_new_line_by_sed/ d' $filename >$filename_copy #cleaning previous vars added by sed
+    mv $filename_copy $filename                               #recycling the code to its prestine condition
+    count=$(cat variables.txt | wc -l)
+    mm=0
+    while [ $mm -lt $count ]; do
+        onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
+        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        mv $filename_copy $filename
+        mm=$((mm + 1))
+    done
+    equation=$(cat totalequation.txt)
+    sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
+    mv $filename_copy $filename
+    ncl -Qn shapefile.ncl
 fi
 
 if [[ $geotiffonoff == 1 ]]; then
