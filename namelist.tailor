@@ -1,50 +1,57 @@
-======================== WRF files and input data ===========================
+========================= WRF files and input data ==========================
 =============================================================================
-number_of_domains              = 2
-domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d01_2023-07-18_12:00:00
-domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d02_2023-07-18_12:00:00
+number_of_domains              = 3
+domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
+domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
-domain_4                       =
+domain_4                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d02_2023-07-18_12:00:00
 domain_5                       =
 -----------------------------------------------------------------------------
 
 
-========================== Modify by shapefile ==============================
+========================== Modify by shapefile mask =========================
 =============================================================================
-shapefile_ON_OFF                = 0
- path_to_shapefile              = /home/anikfal/Documents/shapefiles/province.shp
+shapefile_ON_OFF                = 1
+ wrf_variable1                  = E_NH3
+ wrf_new_variable1              = (E_NH3 * 1 ) + E_SO2/2 + 100
+ path_to_shapefile              = /home/anikfal/extra_codes/SR/emissions/wrfchemi/tehranbasin.shp
+ inverse_mask_on_off            = 0
 -----------------------------------------------------------------------------
 
 
 ========================== Modify by bounding box ===========================
 =============================================================================
 bounding_box_ON_OFF             = 0
- north_lat                      = 3
- south_lat                      = 3
- west_long                      = 3
- east_long                      = 3
+ wrf_variable2                  = E_NH3
+ wrf_new_variable2              = (E_NH3 * 1 ) + E_SO2/2 + 100
+ north_lat                      = 36
+ south_lat                      = 34
+ west_long                      = 48
+ east_long                      = 51.5
 -----------------------------------------------------------------------------
 
 
 ========================= Modify by list of points ==========================
 =============================================================================
 points_list_ON_OFF              = 0
- latitudes_list                 = 33.40, 36.20
- longitudes_list                = 51.78, 52.30
+ wrf_variable3                  = U
+ latitudes_list                 = 34.1, 36.0, 35.44, 35.8, 33.3
+ longitudes_list                = 50.55, 51.11, 52.22, 53.33, 53.8
+ point_values                   = 20, 20, 20.2, 30.3, 40.4
 -----------------------------------------------------------------------------
 
 
-=================== Modify by the whole smallest domain =====================
+==================== Modify by the whole smallest domain ====================
 =============================================================================
 whole_domain_ON_OFF             = 0
- wrf_variable                   = E_NH3
- wrf_new_variable               = (E_NH3 * 1 ) + E_SO2/2 + 100
+ wrf_variable4                  = E_NH3
+ wrf_new_variable4              = (E_NH3 * 1 ) + E_SO2/2 + 100
 -----------------------------------------------------------------------------
 
 
-===================== Replacement by a GeoTIFF file ========================
+======================== Replacement by GeoTIFF data ========================
 =============================================================================
-geotiff_replace_ON_OFF           = 1
+geotiff_replace_ON_OFF           = 0
+ wrf_variable5                   = T
  geotiff_file                    = /home/anikfal/extra_codes/emissions/wrfchemi/dem_tehran.tif
- wrf_variable                    = T
 -----------------------------------------------------------------------------

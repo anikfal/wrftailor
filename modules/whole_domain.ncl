@@ -31,8 +31,9 @@ filefromlist->$wrfvariable$ = polynomial
 file_list[number_of_domains-1] = filefromlist
 
 dims = dimsizes(lat_small)
-lats_unstr = fspan(min(lat_small), max(lat_small), dims(1))
-lons_unstr = fspan(min(long_small), max(long_small), dims(0))
+dimdims = dimsizes(dims)
+lats_unstr = fspan(min(lat_small), max(lat_small), dims(dimdims-1))
+lons_unstr = fspan(min(long_small), max(long_small), dims(dimdims-2))
 grd_unsrt  = rcm2rgrid_Wrap(lat_small, long_small, file_list[number_of_domains-1]->$wrfvariable$, lats_unstr, lons_unstr, 1)
 print("Smallest domain has been tailored")
 
