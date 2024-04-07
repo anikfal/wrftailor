@@ -14,10 +14,47 @@ end if
 number_of_domains = tointeger(getenv("number_of_domains"))
 shape_path = getenv("shape_path")
 inverse_mask_on_off = getenv("inverse_mask_on_off")
+variable_level = getenv("variable_level")
+
+lines = tointeger(getenv("substitutenumber"))
+sublevels = new(lines,"integer")
+i=0
+do while(i.le.(lines-1))
+    sublevels(i) = tointeger(getenv("sublevels"+i))
+    i=i+1
+end do
+
 opt             = True
 opt@return_mask = True
 NCLvarnames = asciiread("variables.txt", -1, "string")
 totvars = dimsizes(NCLvarnames)
+
+subnums = dimsizes(sublevels)
+if (totvars .ne. subnums) then
+    print("Warning: variable_substitute_name1 has " + totvars + \
+    " variables. But variable_substitute_levels1 has " + subnums + \ 
+    " values. They should be equal.")
+    print("Exiting ..")
+    exit()
+end if
+
+jj=0
+do while(jj.lt.totvars) ;code aaff
+    if (.not. isfilevar(file_list[0], NCLvarnames(jj))) then
+        print("Warning: " + NCLvarnames(jj) + " in variable_substitute_name1 is not available in input files.")
+        print("Exiting ..")
+        exit()
+    end if
+    jj = jj+1
+end do
+
+
+; thevariable = file_list[0]->$wrfvariable$
+; if ( dimsizes(dimsizes(thevariable)) .eq. 4) then
+;     print("4dim data")
+;     exit()
+; end if
+
 
 ii = number_of_domains
 do while(ii .gt. 0)
@@ -29,13 +66,32 @@ do while(ii .gt. 0)
         ListAppend(varlist, wrf_user_getvar(file_list[ii], NCLvarnames(jj), -1))
         jj = jj+1
     end do
-
     ;;;shell script
-E_SO2 := varlist[1]  ;;;added_new_line_by_sed
-E_NH3 := varlist[0]  ;;;added_new_line_by_sed
+          LANDUSEF := varlist[2]  ;;;added_new_line_by_sed 
+          printVarSummary(LANDUSEF) ;;;added_new_line_by_sed 
+          vardim := dimsizes(LANDUSEF) ;;;added_new_line_by_sed 
+          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
+             LANDUSEF := LANDUSEF(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed 
+          printVarSummary(LANDUSEF) ;;;added_new_line_by_sed
+          GREENFRAC := varlist[1]  ;;;added_new_line_by_sed 
+          printVarSummary(GREENFRAC) ;;;added_new_line_by_sed 
+          vardim := dimsizes(GREENFRAC) ;;;added_new_line_by_sed 
+          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
+             GREENFRAC := GREENFRAC(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed 
+          printVarSummary(GREENFRAC) ;;;added_new_line_by_sed
+          EROD := varlist[0]  ;;;added_new_line_by_sed 
+          printVarSummary(EROD) ;;;added_new_line_by_sed 
+          vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
+          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
+             EROD := EROD(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed 
+          printVarSummary(EROD) ;;;added_new_line_by_sed
 
+exit()
     ;;;equation from namelist.wrf
-polynomial := (E_NH3*1)+E_SO2/2+100  ;;;added_new_line_by_sed
+polynomial := (EROD*1)+GREENFRAC/2+100+LANDUSEF  ;;;added_new_line_by_sed
 polynomial_init := polynomial
 polynomial@lat2d := file_list[ii]->XLAT
 polynomial@lon2d := file_list[ii]->XLONG

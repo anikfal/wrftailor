@@ -1,19 +1,21 @@
 ========================= WRF files and input data ==========================
 =============================================================================
-number_of_domains              = 3
-domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d01_2021-01-22_00:00:00
-domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d02_2021-01-22_00:00:00
+number_of_domains              = 2
+domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d01.nc
+domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d01.nc
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
 domain_4                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d02_2023-07-18_12:00:00
-domain_5                       =
+domain_5                       =  
 -----------------------------------------------------------------------------
 
 
 ========================== Modify by shapefile mask =========================
 =============================================================================
 shapefile_ON_OFF                = 1
- wrf_variable1                  = E_NH3
- wrf_new_variable1              = (E_NH3 * 1 ) + E_SO2/2 + 100
+ variable_name1                 = EROD
+ variable_level1                = 3
+ variable_substitute_name1      = (EROD * 1 ) + GREENFRAC/2 + 100 + LANDUSEF
+ variable_substitute_levels1    = 2,5,1
  path_to_shapefile              = /home/anikfal/extra_codes/SR/emissions/wrfchemi/tehranbasin.shp
  inverse_mask_on_off            = 0
 -----------------------------------------------------------------------------
@@ -22,8 +24,8 @@ shapefile_ON_OFF                = 1
 ========================== Modify by bounding box ===========================
 =============================================================================
 bounding_box_ON_OFF             = 0
- wrf_variable2                  = E_NH3
- wrf_new_variable2              = (E_NH3 * 1 ) + E_SO2/2 + 100
+ variable_name2                 = E_NH3
+ variable_substitute_name2      = (E_NH3 * 1 ) + E_SO2/2 + 100
  north_lat                      = 36
  south_lat                      = 34
  west_long                      = 48
@@ -34,7 +36,7 @@ bounding_box_ON_OFF             = 0
 ========================= Modify by list of points ==========================
 =============================================================================
 points_list_ON_OFF              = 0
- wrf_variable3                  = U
+ variable_name3                 = U
  latitudes_list                 = 34.1, 36.0, 35.44, 35.8, 33.3
  longitudes_list                = 50.55, 51.11, 52.22, 53.33, 53.8
  point_values                   = 20, 20, 20.2, 30.3, 40.4
@@ -44,14 +46,14 @@ points_list_ON_OFF              = 0
 ==================== Modify by the whole smallest domain ====================
 =============================================================================
 whole_domain_ON_OFF             = 0
- wrf_variable4                  = E_NH3
- wrf_new_variable4              = (E_NH3 * 1 ) + E_SO2/2 + 100
+ variable_substitute_name4      = E_NH3
+ new_variable_name4             = (E_NH3 * 1 ) + E_SO2/2 + 100
 -----------------------------------------------------------------------------
 
 
 ======================== Replacement by GeoTIFF data ========================
 =============================================================================
 geotiff_replace_ON_OFF           = 0
- wrf_variable5                   = T
+ variable_name5                  = T
  geotiff_file                    = /home/anikfal/extra_codes/emissions/wrfchemi/dem_tehran.tif
 -----------------------------------------------------------------------------
