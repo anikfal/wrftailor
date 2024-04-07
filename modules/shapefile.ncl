@@ -20,7 +20,7 @@ lines = tointeger(getenv("substitutenumber"))
 sublevels = new(lines,"integer")
 i=0
 do while(i.le.(lines-1))
-    sublevels(i) = tointeger(getenv("sublevels"+i))
+    sublevels(i) = tointeger(getenv("sublevels"+i)) - 1
     i=i+1
 end do
 
@@ -68,33 +68,54 @@ do while(ii .gt. 0)
     end do
     ;;;shell script
           LANDUSEF := varlist[2]  ;;;added_new_line_by_sed 
-          printVarSummary(LANDUSEF) ;;;added_new_line_by_sed 
           vardim := dimsizes(LANDUSEF) ;;;added_new_line_by_sed 
-          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
-             LANDUSEF := LANDUSEF(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
-          end if ;;;added_new_line_by_sed 
-          printVarSummary(LANDUSEF) ;;;added_new_line_by_sed
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(LANDUSEF) ;;;added_new_line_by_sed 
+            if ((sublevels(2) .gt. (vardim(1)-1)) .or. (sublevels(2) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(2)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(2) + \ ;;;added_new_line_by_sed 
+              " (" + LANDUSEF@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            LANDUSEF := LANDUSEF(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
           GREENFRAC := varlist[1]  ;;;added_new_line_by_sed 
-          printVarSummary(GREENFRAC) ;;;added_new_line_by_sed 
           vardim := dimsizes(GREENFRAC) ;;;added_new_line_by_sed 
-          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
-             GREENFRAC := GREENFRAC(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
-          end if ;;;added_new_line_by_sed 
-          printVarSummary(GREENFRAC) ;;;added_new_line_by_sed
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(GREENFRAC) ;;;added_new_line_by_sed 
+            if ((sublevels(1) .gt. (vardim(1)-1)) .or. (sublevels(1) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(1)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(1) + \ ;;;added_new_line_by_sed 
+              " (" + GREENFRAC@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            GREENFRAC := GREENFRAC(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
           EROD := varlist[0]  ;;;added_new_line_by_sed 
-          printVarSummary(EROD) ;;;added_new_line_by_sed 
           vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
-          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed 
-             EROD := EROD(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
-          end if ;;;added_new_line_by_sed 
-          printVarSummary(EROD) ;;;added_new_line_by_sed
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(EROD) ;;;added_new_line_by_sed 
+            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
+              " (" + EROD@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            EROD := EROD(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
 
-exit()
     ;;;equation from namelist.wrf
 polynomial := (EROD*1)+GREENFRAC/2+100+LANDUSEF  ;;;added_new_line_by_sed
 polynomial_init := polynomial
 polynomial@lat2d := file_list[ii]->XLAT
 polynomial@lon2d := file_list[ii]->XLONG
+exit()
 
 coorddim = dimsizes(dimsizes(polynomial))
 if (coorddim .gt. 2) then

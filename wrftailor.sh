@@ -207,12 +207,19 @@ if [[ $shapeonoff == 1 ]]; then
 
         sed '/shell script/a \
           '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
-          printVarSummary('${onevar[$mm]}') ;;;added_new_line_by_sed \
           vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
-          if ((dimsizes(vardim) .eq. 4) .and. (vardim(1) .gt. 1)) then ;;;added_new_line_by_sed \
-             '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
-          end if ;;;added_new_line_by_sed \
-          printVarSummary('${onevar[$mm]}') ;;;added_new_line_by_sed' $filename >$filename_copy
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed \
+            dimnames = getvardims('${onevar[$mm]}') ;;;added_new_line_by_sed \
+            if ((sublevels('$mm') .gt. (vardim(1)-1)) .or. (sublevels('$mm') .lt. 0)) then ;;;added_new_line_by_sed \
+              selected_sublevel = sublevels('$mm')+1 ;;;added_new_line_by_sed \
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames('$mm') + \\ ;;;added_new_line_by_sed \
+              " (" + '${onevar[$mm]}'@description + ") in namelist.tailor is " + selected_sublevel + \\ ;;;added_new_line_by_sed \
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed \
+              print("Exiting ..") ;;;added_new_line_by_sed \
+              exit() ;;;added_new_line_by_sed \
+            end if ;;;added_new_line_by_sed \
+            '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
+          end if ;;;added_new_line_by_sed' $filename >$filename_copy
 
         mv $filename_copy $filename
         mm=$((mm + 1))
