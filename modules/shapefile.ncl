@@ -14,7 +14,7 @@ end if
 number_of_domains = tointeger(getenv("number_of_domains"))
 shape_path = getenv("shape_path")
 inverse_mask_on_off = getenv("inverse_mask_on_off")
-variable_level = getenv("variable_level")
+variable_level = tointeger(getenv("variable_level"))
 
 lines = tointeger(getenv("substitutenumber"))
 sublevels = new(lines,"integer")
@@ -28,6 +28,20 @@ opt             = True
 opt@return_mask = True
 NCLvarnames = asciiread("variables.txt", -1, "string")
 totvars = dimsizes(NCLvarnames)
+
+thevariable = file_list[0]->$wrfvariable$
+thevardim   = dimsizes(thevariable)
+thevardimname = getvardims(thevariable)
+if ( dimsizes(thevardim) .eq. 4) then
+  var_is_4d = True
+  if ((variable_level .gt. thevardim(1)) .or. (variable_level .lt. 1)) then
+  print("Warning: " + "variable_level1 for " + wrfvariable + \
+  " (" + thevariable@description + ") in namelist.tailor is " + variable_level + \
+  ". It should be between 1 to " + thevardim(1) + " (maximum number of " + thevardimname(1) + ").")
+  exit()
+  end if
+  variable_level = variable_level - 1
+end if
 
 subnums = dimsizes(sublevels)
 if (totvars .ne. subnums) then
@@ -47,14 +61,6 @@ do while(jj.lt.totvars) ;code aaff
     end if
     jj = jj+1
 end do
-
-
-; thevariable = file_list[0]->$wrfvariable$
-; if ( dimsizes(dimsizes(thevariable)) .eq. 4) then
-;     print("4dim data")
-;     exit()
-; end if
-
 
 ii = number_of_domains
 do while(ii .gt. 0)
@@ -113,23 +119,26 @@ do while(ii .gt. 0)
     ;;;equation from namelist.wrf
 polynomial := (EROD*1)+GREENFRAC/2+100+LANDUSEF  ;;;added_new_line_by_sed
 polynomial_init := polynomial
-polynomial@lat2d := file_list[ii]->XLAT
-polynomial@lon2d := file_list[ii]->XLONG
-exit()
+allvars := getfilevarnames(file_list[ii])
+all_latnames := str_match(allvars, "XLAT")
+all_longnames := str_match(allvars, "XLONG")
+polynomial@lat2d := file_list[ii]->$all_latnames(0)$
+polynomial@lon2d := file_list[ii]->$all_longnames(0)$
 
 coorddim = dimsizes(dimsizes(polynomial))
 if (coorddim .gt. 2) then
-    if (coorddim .eq. 3) then
-        polynomial := polynomial(0, :, :)
-        else
-        polynomial := polynomial(0, 0, :, :)
-    end if
+  polynomial := polynomial(0, :, :)
 end if
 
 mask_main := shapefile_mask_data(polynomial, shape_path, opt)
 mask_main := conform(polynomial_init, mask_main, (/coorddim-2, coorddim-1/))
 mask_inverse := where(mask_main.eq.1, 0, 1)
-wrfvar := file_list[ii]->$wrfvariable$
+wrfvar_original := file_list[ii]->$wrfvariable$
+wrfvar := wrfvar_original
+coorddim := dimsizes(dimsizes(wrfvar))
+if (coorddim .eq. 4) then
+  wrfvar := wrfvar(:, variable_level, :, :)
+end if
 if (inverse_mask_on_off .eq. 1) then
     mask_main_copy := mask_main
     mask_main := mask_inverse
@@ -140,6 +149,14 @@ end if
 polynomial_final_masked := (wrfvar * mask_inverse) + (polynomial_init * mask_main)
 copy_VarCoords(wrfvar, polynomial_final_masked)
 filefromlist := file_list[ii]
-filefromlist->$wrfvariable$ = polynomial_final_masked
+; filefromlist->$wrfvariable$ = polynomial_final_masked
+tempvar = addfile("tempppppp.nc", "c")
+tempvar->var = polynomial_final_masked
+exit()
+if (var_is_4d .eq. True) then
+  wrfvar_original(:, variable_level, :, :) = polynomial_final_masked
+  else
+  wrfvar_original = polynomial_final_masked
+end if
 print("Domain " + (ii+1) + " has been tailord")
 end do
