@@ -117,7 +117,7 @@ do while(ii .gt. 0)
           end if ;;;added_new_line_by_sed
 
     ;;;equation from namelist.wrf
-polynomial := (EROD*1)+GREENFRAC/2+100+LANDUSEF  ;;;added_new_line_by_sed
+polynomial := (EROD*1)+GREENFRAC/2+1+LANDUSEF  ;;;added_new_line_by_sed
 polynomial_init := polynomial
 allvars := getfilevarnames(file_list[ii])
 all_latnames := str_match(allvars, "XLAT")
@@ -149,14 +149,17 @@ end if
 polynomial_final_masked := (wrfvar * mask_inverse) + (polynomial_init * mask_main)
 copy_VarCoords(wrfvar, polynomial_final_masked)
 filefromlist := file_list[ii]
-; filefromlist->$wrfvariable$ = polynomial_final_masked
-tempvar = addfile("tempppppp.nc", "c")
-tempvar->var = polynomial_final_masked
-exit()
 if (var_is_4d .eq. True) then
   wrfvar_original(:, variable_level, :, :) = polynomial_final_masked
+  tailored_file = file_list[ii]
+  tailored_file->$wrfvariable$ = wrfvar_original
+  delete(tailored_file)
   else
+  ; wrfvar_original = polynomial_final_masked
   wrfvar_original = polynomial_final_masked
+  tailored_file = file_list[ii]
+  tailored_file->$wrfvariable$ = wrfvar_original
+  delete(tailored_file)
 end if
 print("Domain " + (ii+1) + " has been tailord")
 end do

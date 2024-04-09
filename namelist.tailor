@@ -2,7 +2,7 @@
 =============================================================================
 number_of_domains              = 2
 domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d01.nc
-domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d01.nc
+domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d02.nc
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
 domain_4                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfout_d02_2023-07-18_12:00:00
 domain_5                       =  
@@ -14,8 +14,8 @@ domain_5                       =
 shapefile_ON_OFF                = 1
  variable_name1                 = EROD
  variable_level1                = 3
- variable_substitute_name1      = (EROD * 1 ) + GREENFRAC/2 + 100 + LANDUSEF
- variable_substitute_levels1    = 2,5,1
+ variable_substitute_name1      = (EROD * 1 ) + GREENFRAC/2 + 1 + LANDUSEF
+ variable_substitute_levels1    = 1,1,21
  path_to_shapefile              = /home/anikfal/extra_codes/SR/emissions/wrfchemi/tehranbasin.shp
  inverse_mask_on_off            = 0
 -----------------------------------------------------------------------------
