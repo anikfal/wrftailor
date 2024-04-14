@@ -32,6 +32,7 @@ totvars = dimsizes(NCLvarnames)
 thevariable = file_list[0]->$wrfvariable$
 thevardim   = dimsizes(thevariable)
 thevardimname = getvardims(thevariable)
+var_is_4d = False
 if ( dimsizes(thevardim) .eq. 4) then
   var_is_4d = True
   if ((variable_level .gt. thevardim(1)) .or. (variable_level .lt. 1)) then
@@ -65,7 +66,7 @@ end do
 ii = number_of_domains
 do while(ii .gt. 0)
     ii = ii - 1
-    print("Masking regarding the shapefile ...")
+    print("Masking by the shapefile ...")
     varlist = NewList("lifo")
     jj=0
     do while(jj.lt.totvars) ;code aaff
@@ -73,57 +74,64 @@ do while(ii .gt. 0)
         jj = jj+1
     end do
     ;;;shell script
-          LANDUSEF := varlist[2]  ;;;added_new_line_by_sed 
-          vardim := dimsizes(LANDUSEF) ;;;added_new_line_by_sed 
+          GREENFRACa := varlist[2]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(GREENFRACa) ;;;added_new_line_by_sed 
           if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
-            dimnames = getvardims(LANDUSEF) ;;;added_new_line_by_sed 
+            dimnames = getvardims(GREENFRACa) ;;;added_new_line_by_sed 
             if ((sublevels(2) .gt. (vardim(1)-1)) .or. (sublevels(2) .lt. 0)) then ;;;added_new_line_by_sed 
               selected_sublevel = sublevels(2)+1 ;;;added_new_line_by_sed 
               print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(2) + \ ;;;added_new_line_by_sed 
-              " (" + LANDUSEF@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              " (" + GREENFRACa@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
               ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
               print("Exiting ..") ;;;added_new_line_by_sed 
               exit() ;;;added_new_line_by_sed 
             end if ;;;added_new_line_by_sed 
-            LANDUSEF := LANDUSEF(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
+            GREENFRACa := GREENFRACa(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
           end if ;;;added_new_line_by_sed
-          GREENFRAC := varlist[1]  ;;;added_new_line_by_sed 
-          vardim := dimsizes(GREENFRAC) ;;;added_new_line_by_sed 
-          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
-            dimnames = getvardims(GREENFRAC) ;;;added_new_line_by_sed 
-            if ((sublevels(1) .gt. (vardim(1)-1)) .or. (sublevels(1) .lt. 0)) then ;;;added_new_line_by_sed 
-              selected_sublevel = sublevels(1)+1 ;;;added_new_line_by_sed 
-              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(1) + \ ;;;added_new_line_by_sed 
-              " (" + GREENFRAC@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
-              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
-              print("Exiting ..") ;;;added_new_line_by_sed 
-              exit() ;;;added_new_line_by_sed 
-            end if ;;;added_new_line_by_sed 
-            GREENFRAC := GREENFRAC(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
-          end if ;;;added_new_line_by_sed
-          EROD := varlist[0]  ;;;added_new_line_by_sed 
+          EROD := varlist[1]  ;;;added_new_line_by_sed 
           vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
           if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
             dimnames = getvardims(EROD) ;;;added_new_line_by_sed 
-            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
-              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
-              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
+            if ((sublevels(1) .gt. (vardim(1)-1)) .or. (sublevels(1) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(1)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(1) + \ ;;;added_new_line_by_sed 
               " (" + EROD@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
               ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
               print("Exiting ..") ;;;added_new_line_by_sed 
               exit() ;;;added_new_line_by_sed 
             end if ;;;added_new_line_by_sed 
-            EROD := EROD(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
+            EROD := EROD(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
+          ALBEDO12M := varlist[0]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(ALBEDO12M) ;;;added_new_line_by_sed 
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(ALBEDO12M) ;;;added_new_line_by_sed 
+            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
+              " (" + ALBEDO12M@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            ALBEDO12M := ALBEDO12M(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
           end if ;;;added_new_line_by_sed
 
     ;;;equation from namelist.wrf
-polynomial := (EROD*1)+GREENFRAC/2+1+LANDUSEF  ;;;added_new_line_by_sed
+polynomial := (ALBEDO12M*1.1)+EROD+GREENFRACa+1.2  ;;;added_new_line_by_sed
 polynomial_init := polynomial
 allvars := getfilevarnames(file_list[ii])
 all_latnames := str_match(allvars, "XLAT")
 all_longnames := str_match(allvars, "XLONG")
-polynomial@lat2d := file_list[ii]->$all_latnames(0)$
-polynomial@lon2d := file_list[ii]->$all_longnames(0)$
+mylat := file_list[ii]->$all_latnames(0)$
+mylong := file_list[ii]->$all_longnames(0)$
+latdim = dimsizes(dimsizes(mylat))
+if (latdim .gt. 2) then
+  mylat := mylat(0, :, :)
+  mylong := mylong(0, :, :)
+end if
+polynomial@lat2d := mylat ;file_list[ii]->$all_latnames(0)$
+polynomial@lon2d := mylong ;file_list[ii]->$all_longnames(0)$
 
 coorddim = dimsizes(dimsizes(polynomial))
 if (coorddim .gt. 2) then
@@ -155,7 +163,6 @@ if (var_is_4d .eq. True) then
   tailored_file->$wrfvariable$ = wrfvar_original
   delete(tailored_file)
   else
-  ; wrfvar_original = polynomial_final_masked
   wrfvar_original = polynomial_final_masked
   tailored_file = file_list[ii]
   tailored_file->$wrfvariable$ = wrfvar_original

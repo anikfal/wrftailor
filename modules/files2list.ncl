@@ -31,3 +31,9 @@ if (fileexists(dom555file)) then
 else
     ListAppend(file_list, "no_file")
 end if
+
+if ((dom111file .eq. dom222file) .or. (dom222file .eq. dom333file) .or. (dom111file .eq. dom333file)) then
+    print("Warning: Some domains in namelist.tailor have the same WRF file")
+    print("Exiting ..")
+    exit()
+end if
