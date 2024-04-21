@@ -131,19 +131,6 @@ if [[ $pointsonoff == 1 ]]; then
     ncl -Qn points.ncl
 fi
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 if [[ $wholeonoff == 1 ]]; then
     export wrf_variable=$(sed -n "/variable_name4/s/.*=//p" namelist.tailor | tr -d " ")
     export wrf_new_variable=$(sed -n "/variable_substitute_name4/s/.*=//p" namelist.tailor | tr -d " ")
@@ -202,9 +189,6 @@ if [[ $shapeonoff == 1 ]]; then
     mm=0
     while [ $mm -lt $count ]; do
         onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        # sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
-        # sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
-
         sed '/shell script/a \
           '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
           vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
@@ -220,7 +204,6 @@ if [[ $shapeonoff == 1 ]]; then
             end if ;;;added_new_line_by_sed \
             '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
           end if ;;;added_new_line_by_sed' $filename >$filename_copy
-
         mv $filename_copy $filename
         mm=$((mm + 1))
     done
@@ -228,6 +211,67 @@ if [[ $shapeonoff == 1 ]]; then
     sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
     mv $filename_copy $filename
     ncl -Qn shapefile.ncl
+fi
+
+if [[ $boundonoff == 1 ]]; then
+    export north_lat=$(sed -n "/north_lat/s/.*=//p" namelist.tailor | tr -d " ")
+    export south_lat=$(sed -n "/south_lat/s/.*=//p" namelist.tailor | tr -d " ")
+    export west_long=$(sed -n "/west_long/s/.*=//p" namelist.tailor | tr -d " ")
+    export east_long=$(sed -n "/east_long/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_new_variable=$(sed -n "/variable_substitute_name2/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/variable_name2/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/variable_level2/s/.*=//p" namelist.tailor | tr -d " ")
+    myvar="variable_substitute_levels2"
+    countline
+    export substitutenumber=$numlinevars #Zero (0) is included in the line numbers
+    #Extracting Variables into array
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      sublevels[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+      sublevels[$varcount]=$(echo ${sublevels[$varcount]}) #Remove spaces
+      varcount=$((varcount + 1))
+    done
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      declare sublevels$varcount=${sublevels[$varcount]}
+      export sublevels$varcount
+      varcount=$((varcount + 1))
+    done
+    
+    echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
+    cd $app_dir/modules
+    ncl separation.ncl >/dev/null
+    filename="bounding.ncl"
+    filename_copy=$filename"_copy"
+    sed '/added_new_line_by_sed/ d' $filename >$filename_copy #cleaning previous vars added by sed
+    mv $filename_copy $filename                               #recycling the code to its prestine condition
+    count=$(cat variables.txt | wc -l)
+    mm=0
+    while [ $mm -lt $count ]; do
+        onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
+        sed '/shell script/a \
+          '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
+          vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed \
+            dimnames = getvardims('${onevar[$mm]}') ;;;added_new_line_by_sed \
+            if ((sublevels('$mm') .gt. (vardim(1)-1)) .or. (sublevels('$mm') .lt. 0)) then ;;;added_new_line_by_sed \
+              selected_sublevel = sublevels('$mm')+1 ;;;added_new_line_by_sed \
+              print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames('$mm') + \\ ;;;added_new_line_by_sed \
+              " (" + '${onevar[$mm]}'@description + ") in namelist.tailor is " + selected_sublevel + \\ ;;;added_new_line_by_sed \
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed \
+              print("Exiting ..") ;;;added_new_line_by_sed \
+              exit() ;;;added_new_line_by_sed \
+            end if ;;;added_new_line_by_sed \
+            '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
+          end if ;;;added_new_line_by_sed' $filename >$filename_copy
+        mv $filename_copy $filename
+        mm=$((mm + 1))
+    done
+    equation=$(cat totalequation.txt)
+    sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
+    mv $filename_copy $filename
+    # exit
+    ncl -Qn bounding.ncl
 fi
 
 if [[ $geotiffonoff == 1 ]]; then
@@ -245,32 +289,4 @@ if [[ $geotiffonoff == 1 ]]; then
     echo "Converting GeoTIFF to NetCDF ..."
     gdal_translate -of NetCDF $geotiff_file $tiff2nc
     ncl -Q geotiff.ncl
-fi
-
-if [[ $boundonoff == 1 ]]; then
-    export north_lat=$(sed -n "/north_lat/s/.*=//p" namelist.tailor | tr -d " ")
-    export south_lat=$(sed -n "/south_lat/s/.*=//p" namelist.tailor | tr -d " ")
-    export west_long=$(sed -n "/west_long/s/.*=//p" namelist.tailor | tr -d " ")
-    export east_long=$(sed -n "/east_long/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_new_variable=$(sed -n "/variable_substitute_name2/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/variable_name2/s/.*=//p" namelist.tailor | tr -d " ")
-    echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
-    cd $app_dir/modules
-    ncl separation.ncl >/dev/null
-    filename="bounding.ncl"
-    filename_copy=$filename"_copy"
-    sed '/added_new_line_by_sed/ d' $filename >$filename_copy #cleaning previous vars added by sed
-    mv $filename_copy $filename                               #recycling the code to its prestine condition
-    count=$(cat variables.txt | wc -l)
-    mm=0
-    while [ $mm -lt $count ]; do
-        onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
-        mv $filename_copy $filename
-        mm=$((mm + 1))
-    done
-    equation=$(cat totalequation.txt)
-    sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
-    mv $filename_copy $filename
-    ncl -Qn bounding.ncl
 fi

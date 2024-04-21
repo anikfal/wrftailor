@@ -1,12 +1,15 @@
-; Code to tailor WRF outputs by a shapefile
+; Code to tailor WRF-NetCDF input data by a shapefile
 ; Contact person: Amirhossein Nikfal <https://github.com/anikfal>
 
 load "files2list.ncl" ;put domain_1, domain_2, ... into file_list
 load "shapefile_utils.ncl"
+print("================ Modify by shapefile mask ================")
+print("----------------------------------------------------------")
 
 wrfvariable = getenv("wrf_variable")
+filename_arr = str_split(getfilepath(file_list[0]), "/")
 if (.not. isfilevar(file_list[0], wrfvariable)) then
-    print("Warning: Variable " + wrfvariable + " is not found")
+    print("Warning: Variable " + wrfvariable + " is not found in " + filename_arr(dimsizes(filename_arr)-1))
     print("Exiting ..")
     exit()
 end if
@@ -39,6 +42,7 @@ if ( dimsizes(thevardim) .eq. 4) then
   print("Warning: " + "variable_level1 for " + wrfvariable + \
   " (" + thevariable@description + ") in namelist.tailor is " + variable_level + \
   ". It should be between 1 to " + thevardim(1) + " (maximum number of " + thevardimname(1) + ").")
+  print("Exiting ..")
   exit()
   end if
   variable_level = variable_level - 1
@@ -74,19 +78,19 @@ do while(ii .gt. 0)
         jj = jj+1
     end do
     ;;;shell script
-          GREENFRACa := varlist[2]  ;;;added_new_line_by_sed 
-          vardim := dimsizes(GREENFRACa) ;;;added_new_line_by_sed 
+          GREENFRAC := varlist[2]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(GREENFRAC) ;;;added_new_line_by_sed 
           if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
-            dimnames = getvardims(GREENFRACa) ;;;added_new_line_by_sed 
+            dimnames = getvardims(GREENFRAC) ;;;added_new_line_by_sed 
             if ((sublevels(2) .gt. (vardim(1)-1)) .or. (sublevels(2) .lt. 0)) then ;;;added_new_line_by_sed 
               selected_sublevel = sublevels(2)+1 ;;;added_new_line_by_sed 
               print("Warning: " + "variable_substitute_levels1 for " + NCLvarnames(2) + \ ;;;added_new_line_by_sed 
-              " (" + GREENFRACa@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              " (" + GREENFRAC@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
               ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
               print("Exiting ..") ;;;added_new_line_by_sed 
               exit() ;;;added_new_line_by_sed 
             end if ;;;added_new_line_by_sed 
-            GREENFRACa := GREENFRACa(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
+            GREENFRAC := GREENFRAC(:, sublevels(2), :, :) ;;;added_new_line_by_sed 
           end if ;;;added_new_line_by_sed
           EROD := varlist[1]  ;;;added_new_line_by_sed 
           vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
@@ -118,7 +122,7 @@ do while(ii .gt. 0)
           end if ;;;added_new_line_by_sed
 
     ;;;equation from namelist.wrf
-polynomial := (ALBEDO12M*1.1)+EROD+GREENFRACa+1.2  ;;;added_new_line_by_sed
+polynomial := (ALBEDO12M*1.1)+EROD+GREENFRAC+1.2  ;;;added_new_line_by_sed
 polynomial_init := polynomial
 allvars := getfilevarnames(file_list[ii])
 all_latnames := str_match(allvars, "XLAT")
