@@ -65,8 +65,8 @@ do while(jj.lt.totvars) ;code aaff
     jj = jj+1
 end do
 
-theVariable = file_list[number_of_domains-1]->$wrfvariable$
-dims = dimsizes(theVariable)
+theVariable2 = file_list[number_of_domains-1]->$wrfvariable$
+dims = dimsizes(theVariable2)
 dimdims = dimsizes(dims)
 lats_unstr = fspan(south_lat, north_lat, dims(dimdims-2))
 lons_unstr = fspan(west_long, east_long, dims(dimdims-1))
