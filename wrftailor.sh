@@ -6,6 +6,14 @@ awk_read_onoff() {
     awk -v pat=$1 '$0~pat {print $3}' namelist.tailor
 }
 
+is_numeric() {
+    if [[ $1 =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        return 0  # Return success (true) if it's numeric
+    else
+        return 1  # Return failure (false) if it's not numeric
+    fi
+}
+
 shapeonoff=$(awk_read_onoff shapefile_ON_OFF)
 boundonoff=$(awk_read_onoff bounding_box_ON_OFF)
 pointsonoff=$(awk_read_onoff points_list_ON_OFF)
@@ -135,6 +143,9 @@ if [[ $wholeonoff == 1 ]]; then
     export wrf_variable=$(sed -n "/target_variable4/s/.*=//p" namelist.tailor | tr -d " ")
     export variable_level=$(sed -n "/target_var_level4/s/.*=//p" namelist.tailor | tr -d " ")
     export wrf_new_variable=$(sed -n "/substitute_variable4/s/.*=//p" namelist.tailor | tr -d " ")
+    if is_numeric $wrf_new_variable; then
+      wrf_new_variable="$wrf_variable*0+$wrf_new_variable"
+    fi
     echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
     myvar="substitute_var_levels4"
     countline
