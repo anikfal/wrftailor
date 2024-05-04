@@ -66,23 +66,37 @@ do while(jj.lt.totvars) ;code aaff
 end do
 
 ;;;shell script
-          LANDUSEF := varlist[0]  ;;;added_new_line_by_sed 
-          vardim := dimsizes(LANDUSEF) ;;;added_new_line_by_sed 
+          EROD := varlist[1]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
           if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
-            dimnames = getvardims(LANDUSEF) ;;;added_new_line_by_sed 
-            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
-              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
-              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
-              " (" + LANDUSEF@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+            dimnames = getvardims(EROD) ;;;added_new_line_by_sed 
+            if ((sublevels(1) .gt. (vardim(1)-1)) .or. (sublevels(1) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(1)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(1) + \ ;;;added_new_line_by_sed 
+              " (" + EROD@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
               ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
               print("Exiting ..") ;;;added_new_line_by_sed 
               exit() ;;;added_new_line_by_sed 
             end if ;;;added_new_line_by_sed 
-            LANDUSEF := LANDUSEF(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
+            EROD := EROD(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
+          HGT_M := varlist[0]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(HGT_M) ;;;added_new_line_by_sed 
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(HGT_M) ;;;added_new_line_by_sed 
+            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
+              " (" + HGT_M@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            HGT_M := HGT_M(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
           end if ;;;added_new_line_by_sed
 
 ;;;equation from namelist.wrf
-polynomial := LANDUSEF*0+33  ;;;added_new_line_by_sed
+polynomial := HGT_M*0.1+EROD  ;;;added_new_line_by_sed
 
 polynomial_init := polynomial
 allvars := getfilevarnames(file_list[number_of_domains-1])
@@ -102,8 +116,7 @@ if (var_is_4d .eq. True) then
   else
   copy_VarCoords(var_original, polynomial)
   copy_VarAtts(var_original, polynomial)
-  var_original = polynomial
-  filefromlist->$wrfvariable$ = var_original
+  filefromlist->$wrfvariable$ = polynomial
   delete(filefromlist)
 end if
 print("Smallest domain has been tailored")
@@ -140,22 +153,36 @@ do while(ii .gt. 0)
         jj = jj+1
     end do
     ;;;shell script
-          LANDUSEF := varlist[0]  ;;;added_new_line_by_sed 
-          vardim := dimsizes(LANDUSEF) ;;;added_new_line_by_sed 
+          EROD := varlist[1]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(EROD) ;;;added_new_line_by_sed 
           if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
-            dimnames = getvardims(LANDUSEF) ;;;added_new_line_by_sed 
-            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
-              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
-              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
-              " (" + LANDUSEF@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+            dimnames = getvardims(EROD) ;;;added_new_line_by_sed 
+            if ((sublevels(1) .gt. (vardim(1)-1)) .or. (sublevels(1) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(1)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(1) + \ ;;;added_new_line_by_sed 
+              " (" + EROD@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
               ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
               print("Exiting ..") ;;;added_new_line_by_sed 
               exit() ;;;added_new_line_by_sed 
             end if ;;;added_new_line_by_sed 
-            LANDUSEF := LANDUSEF(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
+            EROD := EROD(:, sublevels(1), :, :) ;;;added_new_line_by_sed 
+          end if ;;;added_new_line_by_sed
+          HGT_M := varlist[0]  ;;;added_new_line_by_sed 
+          vardim := dimsizes(HGT_M) ;;;added_new_line_by_sed 
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed 
+            dimnames = getvardims(HGT_M) ;;;added_new_line_by_sed 
+            if ((sublevels(0) .gt. (vardim(1)-1)) .or. (sublevels(0) .lt. 0)) then ;;;added_new_line_by_sed 
+              selected_sublevel = sublevels(0)+1 ;;;added_new_line_by_sed 
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames(0) + \ ;;;added_new_line_by_sed 
+              " (" + HGT_M@description + ") in namelist.tailor is " + selected_sublevel + \ ;;;added_new_line_by_sed 
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed 
+              print("Exiting ..") ;;;added_new_line_by_sed 
+              exit() ;;;added_new_line_by_sed 
+            end if ;;;added_new_line_by_sed 
+            HGT_M := HGT_M(:, sublevels(0), :, :) ;;;added_new_line_by_sed 
           end if ;;;added_new_line_by_sed
     ;;;equation from namelist.wrf
-polynomial := LANDUSEF*0+33  ;;;added_new_line_by_sed
+polynomial := HGT_M*0.1+EROD  ;;;added_new_line_by_sed
 
     small2next := rgrid2rcm_Wrap(lats_unstr, lons_unstr, grd_unsrt, newlat, newlong, 1)
     filefromlist := file_list[ii]
@@ -168,14 +195,17 @@ polynomial := LANDUSEF*0+33  ;;;added_new_line_by_sed
       copy_VarCoords(var_original(:, variable_level, :, :), polynomial)
       copy_VarAtts(var_original(:, variable_level, :, :), polynomial)
       tailored_file = file_list[ii]
-      tailored_file->$wrfvariable$(:,variable_level,:,:) = (var_original(:,variable_level,:,:) * small2next000) + var_central;var_original
+      tailored_file->$wrfvariable$(:,variable_level,:,:) = (var_original(:,variable_level,:,:) * small2next000) + var_central
       delete(tailored_file)
       else
+      small2next000 := where(ismissing(small2next), 1, 0)
+      small2next111 := where(ismissing(small2next), 0, 1)
+      var_central := polynomial * small2next111
       copy_VarCoords(var_original, polynomial)
       copy_VarAtts(var_original, polynomial)
-      var_original = polynomial
-      filefromlist->$wrfvariable$ = var_original
-      delete(filefromlist)
+      tailored_file = file_list[ii]
+      tailored_file->$wrfvariable$ = (var_original * small2next000) + var_central
+      delete(tailored_file)
     end if
     print("Domain " + (ii+1) + " has been tailord")
 end do
