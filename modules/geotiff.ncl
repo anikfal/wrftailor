@@ -2,6 +2,8 @@
 ; Contact person: Amirhossein Nikfal <https://github.com/anikfal>
 
 load "files2list.ncl" ;put domain_1, domain_2, ... into file_list
+print("============== Replacement by GeoTIFF data ===============")
+print("----------------------------------------------------------")
 
 wrfvariable = getenv("wrf_variable")
 filename_arr = str_split(getfilepath(file_list[0]), "/")
