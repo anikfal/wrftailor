@@ -6,6 +6,14 @@ awk_read_onoff() {
     awk -v pat=$1 '$0~pat {print $3}' namelist.tailor
 }
 
+is_numeric() {
+    if [[ $1 =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        return 0  # Return success (true) if it's numeric
+    else
+        return 1  # Return failure (false) if it's not numeric
+    fi
+}
+
 shapeonoff=$(awk_read_onoff shapefile_ON_OFF)
 boundonoff=$(awk_read_onoff bounding_box_ON_OFF)
 pointsonoff=$(awk_read_onoff points_list_ON_OFF)
@@ -22,7 +30,13 @@ if [[ $sumopts -eq 0 ]]; then
     echo "  Select one task or section in namelist.wrf and run again"
     exit
 fi
-
+function countline() {
+  numlinevars=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F',' '{ print NF }')
+  ifendcomma=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F "," '{print $NF}' | tr -d " ")
+  if [[ $ifendcomma == "" ]]; then
+    numlinevars=$((numlinevars - 1))
+  fi
+  }
 export number_of_domains=$(sed -n "/number_of_domains/s/.*=//p" namelist.tailor | tr -d " ")
 if [[ $number_of_domains -gt 5 ]]; then
     echo Warning!
@@ -37,15 +51,8 @@ export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
 if [[ $pointsonoff == 1 ]]; then
- function countline() {
-  numlinevars=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F',' '{ print NF }')
-  ifendcomma=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | awk -F "," '{print $NF}' | tr -d " ")
-  if [[ $ifendcomma == "" ]]; then
-    numlinevars=$((numlinevars - 1))
-  fi
- }
-  export wrf_variable=$(sed -n "/wrf_variable3/s/.*=//p" namelist.tailor | tr -d " ")
-
+  export wrf_variable=$(sed -n "/target_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+  export variable_level=$(sed -n "/target_var_level3/s/.*=//p" namelist.tailor | tr -d " ")
   myvar="point_values"
   countline
   export nclpoints=$numlinevars #Zero (0) is included in the line numbers
@@ -133,23 +140,30 @@ if [[ $pointsonoff == 1 ]]; then
     ncl -Qn points.ncl
 fi
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 if [[ $wholeonoff == 1 ]]; then
-    export wrf_variable=$(sed -n "/wrf_variable4/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_new_variable=$(sed -n "/wrf_new_variable4/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/target_variable4/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/target_var_level4/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_new_variable=$(sed -n "/substitute_variable4/s/.*=//p" namelist.tailor | tr -d " ")
+    if is_numeric $wrf_new_variable; then
+      wrf_new_variable="$wrf_variable*0+$wrf_new_variable"
+    fi
     echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
+    myvar="substitute_var_levels4"
+    countline
+    export substitutenumber=$numlinevars #Zero (0) is included in the line numbers
+    #Extracting Variables into array
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      sublevels[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+      sublevels[$varcount]=$(echo ${sublevels[$varcount]}) #Remove spaces
+      varcount=$((varcount + 1))
+    done
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      declare sublevels$varcount=${sublevels[$varcount]}
+      export sublevels$varcount
+      varcount=$((varcount + 1))
+    done
     cd $app_dir/modules
     ncl separation.ncl >/dev/null
     filename="whole_domain.ncl"
@@ -160,7 +174,21 @@ if [[ $wholeonoff == 1 ]]; then
     mm=0
     while [ $mm -lt $count ]; do
         onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        sed '/shell script/a \
+          '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
+          vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed \
+            dimnames = getvardims('${onevar[$mm]}') ;;;added_new_line_by_sed \
+            if ((sublevels('$mm') .gt. (vardim(1)-1)) .or. (sublevels('$mm') .lt. 0)) then ;;;added_new_line_by_sed \
+              selected_sublevel = sublevels('$mm')+1 ;;;added_new_line_by_sed \
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames('$mm') + \\ ;;;added_new_line_by_sed \
+              " (" + '${onevar[$mm]}'@description + ") in namelist.tailor is " + selected_sublevel + \\ ;;;added_new_line_by_sed \
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed \
+              print("Exiting ..") ;;;added_new_line_by_sed \
+              exit() ;;;added_new_line_by_sed \
+            end if ;;;added_new_line_by_sed \
+            '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
+          end if ;;;added_new_line_by_sed' $filename >$filename_copy
         mv $filename_copy $filename
         mm=$((mm + 1))
     done
@@ -172,9 +200,27 @@ fi
 
 if [[ $shapeonoff == 1 ]]; then
     export shape_path=$(sed -n "/path_to_shapefile/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/wrf_variable1/s/.*=//p" namelist.tailor | tr -d " ")
-    wrf_new_variable=$(sed -n "/wrf_new_variable1/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/target_variable1/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/target_var_level1/s/.*=//p" namelist.tailor | tr -d " ")
+    wrf_new_variable=$(sed -n "/substitute_variable1/s/.*=//p" namelist.tailor | tr -d " ")
     export inverse_mask_on_off=$(awk_read_onoff inverse_mask_on_off)
+    myvar="substitute_var_levels1"
+    countline
+    export substitutenumber=$numlinevars #Zero (0) is included in the line numbers
+    #Extracting Variables into array
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      sublevels[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+      sublevels[$varcount]=$(echo ${sublevels[$varcount]}) #Remove spaces
+      varcount=$((varcount + 1))
+    done
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      declare sublevels$varcount=${sublevels[$varcount]}
+      export sublevels$varcount
+      varcount=$((varcount + 1))
+    done
+
     echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
     cd $app_dir/modules
     ncl separation.ncl >/dev/null
@@ -186,7 +232,21 @@ if [[ $shapeonoff == 1 ]]; then
     mm=0
     while [ $mm -lt $count ]; do
         onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        sed '/shell script/a \
+          '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
+          vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed \
+            dimnames = getvardims('${onevar[$mm]}') ;;;added_new_line_by_sed \
+            if ((sublevels('$mm') .gt. (vardim(1)-1)) .or. (sublevels('$mm') .lt. 0)) then ;;;added_new_line_by_sed \
+              selected_sublevel = sublevels('$mm')+1 ;;;added_new_line_by_sed \
+              print("Warning: " + "substitute_var_levels1 for " + NCLvarnames('$mm') + \\ ;;;added_new_line_by_sed \
+              " (" + '${onevar[$mm]}'@description + ") in namelist.tailor is " + selected_sublevel + \\ ;;;added_new_line_by_sed \
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed \
+              print("Exiting ..") ;;;added_new_line_by_sed \
+              exit() ;;;added_new_line_by_sed \
+            end if ;;;added_new_line_by_sed \
+            '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
+          end if ;;;added_new_line_by_sed' $filename >$filename_copy
         mv $filename_copy $filename
         mm=$((mm + 1))
     done
@@ -196,30 +256,31 @@ if [[ $shapeonoff == 1 ]]; then
     ncl -Qn shapefile.ncl
 fi
 
-if [[ $geotiffonoff == 1 ]]; then
-    gdal_translate --version >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "Warning: gdal_translate must be installed on the system."
-        echo "Exiting ..."
-        exit
-    fi
-    export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/wrf_variable5/s/.*=//p" namelist.tailor | tr -d " ")
-    cd $app_dir/modules
-    filename=$(basename $geotiff_file)
-    export tiff2nc=$filename".nc"
-    echo "Converting GeoTIFF to NetCDF ..."
-    gdal_translate -of NetCDF $geotiff_file $tiff2nc
-    ncl -Q geotiff.ncl
-fi
-
 if [[ $boundonoff == 1 ]]; then
     export north_lat=$(sed -n "/north_lat/s/.*=//p" namelist.tailor | tr -d " ")
     export south_lat=$(sed -n "/south_lat/s/.*=//p" namelist.tailor | tr -d " ")
     export west_long=$(sed -n "/west_long/s/.*=//p" namelist.tailor | tr -d " ")
     export east_long=$(sed -n "/east_long/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_new_variable=$(sed -n "/wrf_new_variable2/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/wrf_variable2/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_new_variable=$(sed -n "/substitute_variable2/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/target_variable2/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/target_var_level2/s/.*=//p" namelist.tailor | tr -d " ")
+    myvar="substitute_var_levels2"
+    countline
+    export substitutenumber=$numlinevars #Zero (0) is included in the line numbers
+    #Extracting Variables into array
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      sublevels[$varcount]=$(sed -n "/$myvar/p" namelist.tailor | awk -F"=" '{print $NF}' | cut -d, -f$((varcount + 1)))
+      sublevels[$varcount]=$(echo ${sublevels[$varcount]}) #Remove spaces
+      varcount=$((varcount + 1))
+    done
+    varcount=0
+    while [ $varcount -lt $substitutenumber ]; do
+      declare sublevels$varcount=${sublevels[$varcount]}
+      export sublevels$varcount
+      varcount=$((varcount + 1))
+    done
+    
     echo $wrf_new_variable >$app_dir"/modules/totalequation.txt"
     cd $app_dir/modules
     ncl separation.ncl >/dev/null
@@ -231,12 +292,47 @@ if [[ $boundonoff == 1 ]]; then
     mm=0
     while [ $mm -lt $count ]; do
         onevar[$mm]=$(sed -n "$((mm + 1)) p" variables.txt)
-        sed '/shell script/ a '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed' $filename >$filename_copy
+        sed '/shell script/a \
+          '${onevar[$mm]}' := varlist['$mm']  ;;;added_new_line_by_sed \
+          vardim := dimsizes('${onevar[$mm]}') ;;;added_new_line_by_sed \
+          if (dimsizes(vardim) .eq. 4) then ;;;added_new_line_by_sed \
+            dimnames = getvardims('${onevar[$mm]}') ;;;added_new_line_by_sed \
+            if ((sublevels('$mm') .gt. (vardim(1)-1)) .or. (sublevels('$mm') .lt. 0)) then ;;;added_new_line_by_sed \
+              selected_sublevel = sublevels('$mm')+1 ;;;added_new_line_by_sed \
+              print("Warning: " + "substitute_var_levels2 for " + NCLvarnames('$mm') + \\ ;;;added_new_line_by_sed \
+              " (" + '${onevar[$mm]}'@description + ") in namelist.tailor is " + selected_sublevel + \\ ;;;added_new_line_by_sed \
+              ". It should be between 1 to " + vardim(1) + " (maximum number of " + dimnames(1) + ").") ;;;added_new_line_by_sed \
+              print("Exiting ..") ;;;added_new_line_by_sed \
+              exit() ;;;added_new_line_by_sed \
+            end if ;;;added_new_line_by_sed \
+            '${onevar[$mm]}' := '${onevar[$mm]}'(:, sublevels('$mm'), :, :) ;;;added_new_line_by_sed \
+          end if ;;;added_new_line_by_sed' $filename >$filename_copy
         mv $filename_copy $filename
         mm=$((mm + 1))
     done
     equation=$(cat totalequation.txt)
     sed '/equation from namelist.wrf/ a polynomial := '$equation'  ;;;added_new_line_by_sed' $filename >$filename_copy
     mv $filename_copy $filename
+    # exit
     ncl -Qn bounding.ncl
 fi
+
+if [[ $geotiffonoff == 1 ]]; then
+    gdal_translate --version >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Warning: gdal_translate must be installed on the system."
+        echo "Exiting ..."
+        exit
+    fi
+    export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/target_variable5/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/target_var_level5/s/.*=//p" namelist.tailor | tr -d " ")
+    cd $app_dir/modules
+    filename=$(basename $geotiff_file)
+    export tiff2nc=$filename".nc"
+    echo "Converting GeoTIFF to NetCDF ..."
+    gdal_translate -of NetCDF $geotiff_file $tiff2nc 1>/dev/null
+    ncl -Q geotiff.ncl
+fi
+
+#sed -n '/whole_domain_ON_OFF/,${/target_variable4/{p;q}}' namelist.tailor
