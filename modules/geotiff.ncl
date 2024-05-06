@@ -56,8 +56,8 @@ do while(ii .gt. 0)
     print("Interpolating from the Geotiff file to the WRF file ...")
     small2next := rgrid2rcm_Wrap(lats_unstr, lons_unstr, tifvar, newlat, newlong, 1) ;3dim in all cases
     filefromlist := file_list[ii]
+    wrfvar := filefromlist->$wrfvariable$
     if (var_is_4d .eq. True) then
-        wrfvar := filefromlist->$wrfvariable$
         small2next_conform := conform(wrfvar(:, variable_level, :, :), small2next, (/1,2/))
         copy_VarAtts(wrfvar(:, variable_level, :, :), small2next_conform)
         copy_VarCoords(wrfvar(:, variable_level, :, :), small2next_conform)
@@ -67,7 +67,6 @@ do while(ii .gt. 0)
         filefromlist->$wrfvariable$(:, variable_level, :, :) = wrfvar_outside + small2next_conform_inside
         delete(filefromlist)
         else
-        wrfvar := filefromlist->$wrfvariable$
         small2next_conform := conform(wrfvar, small2next, (/1,2/))
         copy_VarAtts(wrfvar, small2next_conform)
         copy_VarCoords(wrfvar, small2next_conform)

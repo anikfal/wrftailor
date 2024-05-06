@@ -51,7 +51,8 @@ export domain_4=$(sed -n "/domain_4/s/.*=//p" namelist.tailor | tr -d " ")
 export domain_5=$(sed -n "/domain_5/s/.*=//p" namelist.tailor | tr -d " ")
 
 if [[ $pointsonoff == 1 ]]; then
-  export wrf_variable=$(sed -n "/variable_name3/s/.*=//p" namelist.tailor | tr -d " ")
+  export wrf_variable=$(sed -n "/target_variable3/s/.*=//p" namelist.tailor | tr -d " ")
+  export variable_level=$(sed -n "/target_var_level3/s/.*=//p" namelist.tailor | tr -d " ")
   myvar="point_values"
   countline
   export nclpoints=$numlinevars #Zero (0) is included in the line numbers
@@ -324,12 +325,13 @@ if [[ $geotiffonoff == 1 ]]; then
         exit
     fi
     export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
-    export wrf_variable=$(sed -n "/variable_name5/s/.*=//p" namelist.tailor | tr -d " ")
+    export wrf_variable=$(sed -n "/target_variable5/s/.*=//p" namelist.tailor | tr -d " ")
+    export variable_level=$(sed -n "/target_var_level5/s/.*=//p" namelist.tailor | tr -d " ")
     cd $app_dir/modules
     filename=$(basename $geotiff_file)
     export tiff2nc=$filename".nc"
     echo "Converting GeoTIFF to NetCDF ..."
-    gdal_translate -of NetCDF $geotiff_file $tiff2nc
+    gdal_translate -of NetCDF $geotiff_file $tiff2nc 1>/dev/null
     ncl -Q geotiff.ncl
 fi
 

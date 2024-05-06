@@ -8,7 +8,7 @@ WRFtailor is a namelist-based tool, written in NCL and Bash scripts, to tailor a
 
 ## Main capabilities:
 - Modify WRF input data over an AOI by a shapefile mask
-- Modify WRF input data over and AOI by setting a lat/lon bounding box
+- Modify WRF input data over an AOI by setting a lat/lon bounding box
 - Modify WRF input data over specific grid points by setting a list of lat/lon coordinates
 - Modify WRF input data over the area of the smallest domain (subdomain)
 - Modify WRF input data by replacing the values from a GeoTIFF file into the WRF input data
