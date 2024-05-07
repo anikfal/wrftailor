@@ -11,11 +11,11 @@ domain_5                       =
 
 ========================== Modify by shapefile mask =========================
 =============================================================================
-shapefile_ON_OFF                = 1
- variable_name1                 = LANDUSEF
- variable_level1                = 12
- variable_substitute_name1      = (ALBEDO12M * 1.1) + EROD + GREENFRAC + 1.2
- variable_substitute_levels1    = 1,1,6
+shapefile_ON_OFF                = 0
+ target_variable1               = LANDUSEF
+ target_var_level1              = 12
+ substitute_variable1           = (ALBEDO12M * 1.1) + EROD + GREENFRAC + 1.2
+ substitute_var_levels1         = 1,1,6
  path_to_shapefile              = /home/anikfal/extra_codes/SR/emissions/wrfchemi/tehranbasin.shp
  inverse_mask_on_off            = 0
 -----------------------------------------------------------------------------
@@ -23,10 +23,12 @@ shapefile_ON_OFF                = 1
 
 ========================== Modify by bounding box ===========================
 =============================================================================
-bounding_box_ON_OFF             = 0
- variable_name2                 = E_NH3
- variable_substitute_name2      = (E_NH3 * 1 ) + E_SO2/2 + 100
- north_lat                      = 36
+bounding_box_ON_OFF             = 1
+ target_variable2               = ALBEDO12M
+ target_var_level2              = 1
+ substitute_variable2           = ALBEDO12M * 3
+ substitute_var_levels2         = 1,
+ north_lat                      = 35
  south_lat                      = 34
  west_long                      = 48
  east_long                      = 51.5
@@ -36,24 +38,28 @@ bounding_box_ON_OFF             = 0
 ========================= Modify by list of points ==========================
 =============================================================================
 points_list_ON_OFF              = 0
- variable_name3                 = U
+ target_variable3               = SANDFRAC
+ target_var_level3              = 3
  latitudes_list                 = 34.1, 36.0, 35.44, 35.8, 33.3
  longitudes_list                = 50.55, 51.11, 52.22, 53.33, 53.8
- point_values                   = 20, 20, 20.2, 30.3, 40.4
+ point_values                   = 1.7, 2, 2.6, 3.3, 4.4
 -----------------------------------------------------------------------------
 
 
 ==================== Modify by the whole smallest domain ====================
 =============================================================================
 whole_domain_ON_OFF             = 0
- variable_substitute_name4      = E_NH3
- new_variable_name4             = (E_NH3 * 1 ) + E_SO2/2 + 100
+ target_variable4               = ALBEDO12M
+ target_var_level4              = 3
+ substitute_variable4           = HGT_M*0.1 + EROD
+ substitute_var_levels4         = 1, 2
 -----------------------------------------------------------------------------
 
 
 ======================== Replacement by GeoTIFF data ========================
 =============================================================================
 geotiff_replace_ON_OFF           = 0
- variable_name5                  = T
- geotiff_file                    = /home/anikfal/extra_codes/emissions/wrfchemi/dem_tehran.tif
+ target_variable5                = E_NH3
+ target_var_level5               = 1
+ geotiff_file                    = /home/anikfal/extra_codes/SR/emissions/wrfchemi/dem_tehran.tif
 -----------------------------------------------------------------------------
