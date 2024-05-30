@@ -1,4 +1,4 @@
-; Code to tailor WRF outputs by a bounding box
+; Code to tailor WRF outputs by a list of coordinates (lats/longs)
 ; Contact person: Amirhossein Nikfal <https://github.com/anikfal>
 
 load "files2list.ncl" ;put domain_1, domain_2, ... into file_list
@@ -60,7 +60,11 @@ do while(ii .gt. 0)
             newlong := newlong(0, 0, :, :)
         end if
     end if
-    print("Interpolating from the Geotiff file to the WRF file ...")
+    latmin = min(newlat)
+    latmax = max(newlat)
+    longmin = min(newlong)
+    longmax = max(newlong)
+    print("Interpolating from the point locations to the WRF file ...")
     nm = getind_latlon2d(newlat, newlong, LatList, LongList)
     filefromlist := file_list[ii]
     wrfvar := filefromlist->$wrfvariable$
@@ -68,12 +72,16 @@ do while(ii .gt. 0)
     kk = 0
     if (var_is_4d .eq. True) then
         do while(kk.lt.lines)
-            wrfvar(:, variable_level, nm(kk, 0), nm(kk, 1)) = (/PointList(kk)/)
+            if ((LatList(kk) .le. latmax) .and. (LatList(kk) .ge. latmin) .and. (LongList(kk) .ge. longmin) .and. (LongList(kk) .le. longmax) ) then
+                wrfvar(:, variable_level, nm(kk, 0), nm(kk, 1)) = (/PointList(kk)/)
+            end if
             kk = kk + 1
         end do
         else
         do while(kk.lt.lines)
-            wrfvar(:, nm(kk, 0), nm(kk, 1)) = (/PointList(kk)/)
+            if ((LatList(kk) .le. latmax) .and. (LatList(kk) .ge. latmin) .and. (LongList(kk) .ge. longmin) .and. (LongList(kk) .le. longmax) ) then
+                wrfvar(:, nm(kk, 0), nm(kk, 1)) = (/PointList(kk)/)
+            end if
             kk = kk + 1
         end do
     end if
