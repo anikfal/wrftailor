@@ -1,40 +1,38 @@
 ========
 Overview
 ========
-For each post-processing task, there are one or more corresponding NCL scripts which are
-automatically modified by the Linux shell scripts. The end user does not need to make any direct
-modifications on the NCL scripts, rather, the Linux shell scripts act as
-proxies between NCL codes and the end user, in modifying the NCL codes
-with regard to some primary input data, provided by the user.
+WRFtailor provides 5 different approaches to tailor and modify WRF input data. All processing inside WRFtailor are carried out by Shell script and NCL codes.
+
+WRFtailor's structure is very similar to `PostWRF Software tool <https://github.com/anikfal/postwrf>`_.
 
 Software structure
 ==================
 
-The processing steps through PostWRF is depicted below as a flowchart diagram:
+The processing steps through WRftailor is depicted below as a flowchart diagram:
 
 .. figure:: images/flowchart.png
    :scale: 50 %
    :alt: map to buried treasure
    
-   PostWRF structure and run processes
+   WRFtailor structure and run processes
 
-Run PostWRF
-===========
+Run WRFtailor
+=============
 
-Modify namelist.wrf and enable the section associated with the desired post-processing task:
+Modify namelist.tailor and enable the section associated with the desired tailoring approach (modify by shapefile, by bounding box, etc.):
 
 .. code-block:: bash
 
-    vi namelist.wrf
+    vi namelist.tailor
 
 Run the tool:
 
 .. code-block:: bash
 
-    ./postwrf.sh
+    ./wrftailor.sh
 
-The user can Run postwrf.sh with some special switches. Each switch is described by the command bellow:
+.. The user can Run postwrf.sh with some special switches. Each switch is described by the command bellow:
 
-.. code-block:: bash
+.. .. code-block:: bash
 
-    ./postwrf.sh -h
+..     ./postwrf.sh -h

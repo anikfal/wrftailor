@@ -1,6 +1,6 @@
-=======================
+=========================
 WRFtailor's Documentation
-=======================
+=========================
 
 WRFtailor is a bunch of interactive tools for tailoring and modification of the
 `Weather Research and Forecasting (WRF) <https://www.mmm.ucar.edu/weather-research-and-forecasting-model>`_
