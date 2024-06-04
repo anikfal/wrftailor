@@ -26,7 +26,7 @@ WRFtailor is available at:
 
     overview
     install
-    extraction
+    shapefile
     geotiff
     contour
     cross
