@@ -27,14 +27,8 @@ WRFtailor is available at:
     overview
     install
     shapefile
-    geotiff
-    contour
-    cross
-    domain
-    diagram
-    statistical
-    rttov
-    era_contour
+    bounding
+    points
 .. Indices and tables
 .. ==================
 
