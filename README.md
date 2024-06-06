@@ -14,7 +14,7 @@ WRFtailor is a namelist-based tool, written in NCL and Bash scripts, to tailor a
 - Modify WRF input data by replacing the values from a GeoTIFF file into the WRF input data
 
 ## Sample applications:
-![Modify an area specified by a shapefile](/home/anikfal/wrftailor/docs/images/readme_image.png "Modify an area specified by a shapefile")
+![readme_image222](https://github.com/anikfal/wrftailor/assets/11738727/12f32123-505d-4354-8b6d-832b26a4b245)
 
 ## Installation:
 Install NCL on a Linux machine (e.g. Fedora):
