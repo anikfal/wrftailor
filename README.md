@@ -13,6 +13,9 @@ WRFtailor is a namelist-based tool, written in NCL and Bash scripts, to tailor a
 - Modify WRF input data over the area of the smallest domain (subdomain)
 - Modify WRF input data by replacing the values from a GeoTIFF file into the WRF input data
 
+## Sample applications:
+![Modify an area specified by a shapefile](/home/anikfal/wrftailor/docs/images/readme_image.png "Modify an area specified by a shapefile")
+
 ## Installation:
 Install NCL on a Linux machine (e.g. Fedora):
 ```bash
@@ -27,3 +30,9 @@ That's enough for all of the WRFtailor's capabilities!
 4. Copy or link your WRF input files (e.g. geo files) in the WRFtailor directory
 5. ``` ./wrftailor.sh ```
 6. If everything has been set correctly, you can tailor and modify your WRF input data according to the enabled section in namelist.tailor.
+
+## HTML Documentations:
+Documentations with practical examples: https://wrftailor.readthedocs.io/en/latest
+
+## YouTube Training Videos:
+https://youtube.com/playlist?list=PL93HaRiv5QkA8uzFzcZkyTqkKPweJajrJ&si=kCJ3UNvnJlrGXFWd

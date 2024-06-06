@@ -29,6 +29,8 @@ WRFtailor is available at:
     shapefile
     bounding
     points
+    domain
+    geotiff
 .. Indices and tables
 .. ==================
 
