@@ -1,5 +1,7 @@
 # WRFtailor
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12581503.svg)](https://doi.org/10.5281/zenodo.12581503)
+
 ### Tailoring and modification of the WRF input data over an area of interest
 
 **Modify your WRF input data, in the same simple way as you run the WRF model!**
