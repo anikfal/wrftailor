@@ -65,33 +65,52 @@ do while(ii .gt. 0)
     tif_lat_conform := conform(tifvar, tiflat, 0)
     tif_long_conform := conform(tifvar, tiflong, 1)
     small2next := rgrid2rcm_Wrap(tiflat, tiflong, tifvar, wrflat, wrflong, 1) ;3dim in all cases
-    small2nextlat := rgrid2rcm_Wrap(tiflat, tiflong, tif_lat_conform, wrflat, wrflong, 1) ;3dim in all cases
-    small2nextlong := rgrid2rcm_Wrap(tiflat, tiflong, tif_long_conform, wrflat, wrflong, 1) ;3dim in all cases
-    wrf2tiflat_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflat, tiflat, tiflong, 1)
-    wrf2tiflong_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflong, tiflat, tiflong, 1)
+    small2next_wrflat := (small2next * 0) + wrflat
+    small2next_wrflong := (small2next * 0) + wrflong
+    wrfjjsize = dimsizes(small2next(:,0))
+    wrfiisize = dimsizes(small2next(0,:))
+    allCells_wrf = new((/wrfjjsize, wrfiisize/), float)
+; small2nextlat := rgrid2rcm_Wrap(tiflat, tiflong, wrflat, wrflat, wrflong, 1) ;3dim in all cases
+    ; small2nextlong := rgrid2rcm_Wrap(tiflat, tiflong, wrflong, wrflat, wrflong, 1) ;3dim in all cases
+    ; wrf2tiflat_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflat, tiflat, tiflong, 1)
+    ; wrf2tiflong_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflong, tiflat, tiflong, 1)
     
     tifvar_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflong, tiflat, tiflong, 1)
     tifvar_withmissing := (tifvar_withmissing * 0) + tifvar
-    wrf2tiflat_withmissing := (wrf2tiflat_withmissing * 0) + tif_lat_conform
-    wrf2tiflong_withmissing := (wrf2tiflong_withmissing * 0) + tif_long_conform
+    ; wrf2tiflat_withmissing := (wrf2tiflat_withmissing * 0) + tif_lat_conform
+    ; wrf2tiflong_withmissing := (wrf2tiflong_withmissing * 0) + tif_long_conform
+
+
+    jj=0
+    do while((jj .lt. wrfjjsize))
+        iitif=0
+        ; print("------------ " + jj)
+        do while((iitif .lt. wrfiisize))
+            quadH = gc_qarea( (/small2next_wrflat(jj,iitif), small2next_wrflat(jj,iitif+1), small2next_wrflat(jj+1,iitif+1), small2next_wrflat(jj+1,iitif)/), \
+            (/small2next_wrflong(jj,iitif), small2next_wrflong(jj,iitif+1), small2next_wrflong(jj+1,iitif+1), small2next_wrflong(jj+1,iitif)/) )
+            areaH = doubletofloat(quadH*R^2)
+            allCells_wrf(jj,iitif) = abs(areaH) * tifvar_withmissing(jj,iitif)
+            iitif = iitif + 1
+        end do
+        ; print(allCells_wrf(0,:))
+        ; exit()
+        jj = jj + 1
+    end do
+    printVarSummary(allCells_wrf)
+    print(min(allCells_wrf) + " " + max(allCells_wrf) + " " + avg(allCells_wrf) + " " + sum(allCells_wrf))
+
+
+    exit()
+
 
     jj=0
     do while((jj .lt. tiflatsize))
         iitif=0
-        print("------------ " + jj)
+        ; print("------------ " + jj)
         do while((iitif .lt. tiflongsize))
-            ; print(iitif)
-            ; print(wrf2tiflat_withmissing(jj,iitif) + " " + wrf2tiflat_withmissing(jj,iitif+1) + " " + wrf2tiflat_withmissing(jj+1,iitif+1) + " " + wrf2tiflat_withmissing(jj+1,iitif))
-            ; exit()
-            ; quadH = gc_qarea( (/wrf2tiflat_withmissing(jj,iitif), wrf2tiflat_withmissing(jj,iitif+1), wrf2tiflat_withmissing(jj+1,iitif+1), wrf2tiflat_withmissing(jj+1,iitif)/), (/wrf2tiflong_withmissing(jj,iitif), wrf2tiflong_withmissing(jj,iitif+1), wrf2tiflong_withmissing(jj+1,iitif+1), wrf2tiflong_withmissing(jj+1,iitif)/) )
             quadH = gc_qarea( (/tif_lat_conform(jj,iitif), tif_lat_conform(jj,iitif+1), tif_lat_conform(jj+1,iitif+1), tif_lat_conform(jj+1,iitif)/), \
             (/tif_long_conform(jj,iitif), tif_long_conform(jj,iitif+1), tif_long_conform(jj+1,iitif+1), tif_long_conform(jj+1,iitif)/) )
             areaH = doubletofloat(quadH*R^2)
-            ; print(areaH)
-            ; print(tifvar_withmissing(jj,iitif))
-            ; printVarSummary(allCells_tif)
-            ; pcH   = (areaH/areaG)*100    ; % of hemisphere .. should be 50%
-            ; print("areaH="+sprintf("%12.3f", areaH)+" km^2")
             allCells_tif(jj,iitif) = abs(areaH) * tifvar_withmissing(jj,iitif)
             iitif = iitif + 1
         end do
@@ -107,22 +126,6 @@ print(min(allCells_tif) + " " + max(allCells_tif) + " " + avg(allCells_tif) + " 
     exit()
 
 
-    ; tiflatmin := min(small2nextlat)
-    ; tiflatmax := max(small2nextlat)
-    ; tiflongmin := min(small2nextlong)
-    ; tiflongmax := max(small2nextlong)
-    ; tiflatmin_diff := abs(tiflat - tiflatmin)
-    ; tiflatmax_diff := abs(tiflat - tiflatmax)
-    ; tiflatmin_ind := minind(tiflatmin_diff)
-    ; tiflatmax_ind := minind(tiflatmax_diff)
-    ; printVarSummary(tifvar)
-    ; print(small2nextlong)
-    ; print(tiflatmin + " " + tiflatmax)
-    ; print(ind(tiflat .eq. tiflatmin))
-    ; print(ind(tiflat .eq. tiflatmax))
-    ; print(tiflatmin_ind)
-    ; print(tiflatmax_ind)
-    ; print(wrf2tiflong(:20, :))
     printVarSummary(wrf2tiflong)
     exit()
     small2next_mask = .not.ismissing(small2next)
