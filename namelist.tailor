@@ -1,8 +1,8 @@
 ========================= WRF files and input data ==========================
 =============================================================================
 number_of_domains              = 2
-domain_1                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d01.nc
-domain_2                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/geo_em.d02.nc
+domain_1                       = /home/anikfal/wrftailor/geo_em.d01.nc
+domain_2                       = /home/anikfal/wrftailor/geo_em.d02.nc
 domain_3                       = /home/anikfal/extra_codes/SR/emissions/wrfchemi/wrfchemi_d03_2021-01-22_00:00:00
 domain_4                       =
 domain_5                       = 
@@ -23,7 +23,7 @@ shapefile_ON_OFF                = 0
 
 ========================== Modify by bounding box ===========================
 =============================================================================
-bounding_box_ON_OFF             = 1
+bounding_box_ON_OFF             = 0
  target_variable2               = ALBEDO12M
  target_var_level2              = 1
  substitute_variable2           = ALBEDO12M * 3
@@ -58,8 +58,9 @@ whole_domain_ON_OFF             = 0
 
 ======================== Replacement by GeoTIFF data ========================
 =============================================================================
-geotiff_replace_ON_OFF           = 0
- target_variable5                = E_NH3
+geotiff_replace_ON_OFF           = 1
+ target_variable5                = GREENFRAC
  target_var_level5               = 1
- geotiff_file                    = /home/anikfal/extra_codes/SR/emissions/wrfchemi/dem_tehran.tif
+ geotiff_file                    = /home/anikfal/wrftailor/dem3.tif
+ use_mass_conservation           = 0
 -----------------------------------------------------------------------------

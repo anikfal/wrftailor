@@ -327,12 +327,15 @@ if [[ $geotiffonoff == 1 ]]; then
     export geotiff_file=$(sed -n "/geotiff_file/s/.*=//p" namelist.tailor | tr -d " ")
     export wrf_variable=$(sed -n "/target_variable5/s/.*=//p" namelist.tailor | tr -d " ")
     export variable_level=$(sed -n "/target_var_level5/s/.*=//p" namelist.tailor | tr -d " ")
+    export massConserved=$(sed -n "/use_mass_conservation/s/.*=//p" namelist.tailor | tr -d " ")
     cd $app_dir/modules
     filename=$(basename $geotiff_file)
     export tiff2nc=$filename".nc"
     echo "Converting GeoTIFF to NetCDF ..."
     gdal_translate -of NetCDF $geotiff_file $tiff2nc 1>/dev/null
-    ncl -Q geotiff.ncl
+    if [[ $massConserved == 1 ]]; then
+      ncl -Q geotiff_mass_conserved.ncl
+    else
+      ncl -Q geotiff.ncl
+    fi
 fi
-
-#sed -n '/whole_domain_ON_OFF/,${/target_variable4/{p;q}}' namelist.tailor
