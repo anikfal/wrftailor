@@ -332,11 +332,10 @@ if [[ $geotiffonoff == 1 ]]; then
     filename=$(basename $geotiff_file)
     export tiff2nc=$filename".nc"
     echo "Converting GeoTIFF to NetCDF ..."
-    # gdal_translate -of NetCDF $geotiff_file $tiff2nc 1>/dev/null
-    ncl -Q geotiff.ncl
+    gdal_translate -of NetCDF $geotiff_file $tiff2nc 1>/dev/null
     if [[ $massConserved == 1 ]]; then
-      echo MASS_CONSERVEDDDDDDDDDDDDDDD
+      ncl -Q geotiff_mass_conserved.ncl
+    else
+      ncl -Q geotiff.ncl
     fi
 fi
-
-#sed -n '/whole_domain_ON_OFF/,${/target_variable4/{p;q}}' namelist.tailor

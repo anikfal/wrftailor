@@ -1,9 +1,9 @@
-; Code to tailor WRF outputs by a geotiff file
+; Code to tailor WRF outputs by a geotiff file, with mass conservation
 ; Contact person: Amirhossein Nikfal <https://github.com/anikfal>
 
 load "files2list.ncl" ;put domain_1, domain_2, ... into file_list
-print("============== Replacement by GeoTIFF data ===============")
-print("----------------------------------------------------------")
+print("============== Replacement by GeoTIFF data, with mass conservation ===============")
+print("----------------------------------------------------------------------------------")
 
 wrfvariable = getenv("wrf_variable")
 filename_arr = str_split(getfilepath(file_list[0]), "/")
@@ -67,73 +67,39 @@ do while(ii .gt. 0)
     small2next := rgrid2rcm_Wrap(tiflat, tiflong, tifvar, wrflat, wrflong, 1) ;3dim in all cases
     small2next_wrflat := (small2next * 0) + wrflat
     small2next_wrflong := (small2next * 0) + wrflong
-    wrfjjsize = dimsizes(small2next(:,0))
-    wrfiisize = dimsizes(small2next(0,:))
-    allCells_wrf = new((/wrfjjsize, wrfiisize/), float)
-; small2nextlat := rgrid2rcm_Wrap(tiflat, tiflong, wrflat, wrflat, wrflong, 1) ;3dim in all cases
-    ; small2nextlong := rgrid2rcm_Wrap(tiflat, tiflong, wrflong, wrflat, wrflong, 1) ;3dim in all cases
-    ; wrf2tiflat_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflat, tiflat, tiflong, 1)
-    ; wrf2tiflong_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflong, tiflat, tiflong, 1)
-    
+    wrfjjsize = dimsizes(small2next(:,0)) - 1
+    wrfiisize = dimsizes(small2next(0,:)) - 1
+    allCells_wrf := new((/wrfjjsize, wrfiisize/), float)
     tifvar_withmissing := rcm2rgrid_Wrap(wrflat, wrflong, wrflong, tiflat, tiflong, 1)
     tifvar_withmissing := (tifvar_withmissing * 0) + tifvar
-    ; wrf2tiflat_withmissing := (wrf2tiflat_withmissing * 0) + tif_lat_conform
-    ; wrf2tiflong_withmissing := (wrf2tiflong_withmissing * 0) + tif_long_conform
-
 
     jj=0
     do while((jj .lt. wrfjjsize))
         iitif=0
-        ; print("------------ " + jj)
         do while((iitif .lt. wrfiisize))
-            quadH = gc_qarea( (/small2next_wrflat(jj,iitif), small2next_wrflat(jj,iitif+1), small2next_wrflat(jj+1,iitif+1), small2next_wrflat(jj+1,iitif)/), \
-            (/small2next_wrflong(jj,iitif), small2next_wrflong(jj,iitif+1), small2next_wrflong(jj+1,iitif+1), small2next_wrflong(jj+1,iitif)/) )
+            quadH = gc_qarea( (/wrflat(jj,iitif), wrflat(jj,iitif+1), wrflat(jj+1,iitif+1), wrflat(jj+1,iitif)/), \
+            (/wrflong(jj,iitif), wrflong(jj,iitif+1), wrflong(jj+1,iitif+1), wrflong(jj+1,iitif)/) )
             areaH = doubletofloat(quadH*R^2)
-            allCells_wrf(jj,iitif) = abs(areaH) * tifvar_withmissing(jj,iitif)
+            allCells_wrf(jj,iitif) = abs(areaH) * small2next(jj,iitif)
             iitif = iitif + 1
         end do
-        ; print(allCells_wrf(0,:))
-        ; exit()
         jj = jj + 1
     end do
-    printVarSummary(allCells_wrf)
-    print(min(allCells_wrf) + " " + max(allCells_wrf) + " " + avg(allCells_wrf) + " " + sum(allCells_wrf))
-
-
-    exit()
-
 
     jj=0
     do while((jj .lt. tiflatsize))
         iitif=0
-        ; print("------------ " + jj)
         do while((iitif .lt. tiflongsize))
-            quadH = gc_qarea( (/tif_lat_conform(jj,iitif), tif_lat_conform(jj,iitif+1), tif_lat_conform(jj+1,iitif+1), tif_lat_conform(jj+1,iitif)/), \
+            quadH := gc_qarea( (/tif_lat_conform(jj,iitif), tif_lat_conform(jj,iitif+1), tif_lat_conform(jj+1,iitif+1), tif_lat_conform(jj+1,iitif)/), \
             (/tif_long_conform(jj,iitif), tif_long_conform(jj,iitif+1), tif_long_conform(jj+1,iitif+1), tif_long_conform(jj+1,iitif)/) )
-            areaH = doubletofloat(quadH*R^2)
-            allCells_tif(jj,iitif) = abs(areaH) * tifvar_withmissing(jj,iitif)
+            areaH := doubletofloat(quadH*R^2)
+            allCells_tif(jj, iitif) = abs(areaH) * tifvar_withmissing(jj,iitif)
             iitif = iitif + 1
         end do
-        ; print(allCells_tif(0,:))
-        ; exit()
         jj = jj + 1
     end do
 
-printVarSummary(allCells_tif)
-print(min(allCells_tif) + " " + max(allCells_tif) + " " + avg(allCells_tif) + " " + sum(allCells_tif))
-
-
-    exit()
-
-
-    printVarSummary(wrf2tiflong)
-    exit()
-    small2next_mask = .not.ismissing(small2next)
-    printVarSummary(small2next_mask)
-    ; iivalid = ind(small2next_mask)
-    ; print(ndtooned(small2next_mask))
-    exit()
-
+    conservation_ratio_tif2wrf = sum(allCells_tif) / sum(allCells_wrf)
 
     filefromlist := file_list[ii]
     wrfvar := filefromlist->$wrfvariable$
@@ -144,7 +110,7 @@ print(min(allCells_tif) + " " + max(allCells_tif) + " " + avg(allCells_tif) + " 
         small2next_conform_inside := where(ismissing(small2next_conform), 0, small2next_conform)
         small2next000 := where(ismissing(small2next_conform), 1, 0)
         wrfvar_outside := wrfvar(:, variable_level, :, :) * small2next000
-        filefromlist->$wrfvariable$(:, variable_level, :, :) = wrfvar_outside + small2next_conform_inside
+        filefromlist->$wrfvariable$(:, variable_level, :, :) = (wrfvar_outside + small2next_conform_inside) * conservation_ratio_tif2wrf
         delete(filefromlist)
         else
         small2next_conform := conform(wrfvar, small2next, (/1,2/))
@@ -153,7 +119,7 @@ print(min(allCells_tif) + " " + max(allCells_tif) + " " + avg(allCells_tif) + " 
         small2next_conform_inside := where(ismissing(small2next_conform), 0, small2next_conform)
         small2next000 := where(ismissing(small2next_conform), 1, 0)
         wrfvar_outside := wrfvar * small2next000
-        filefromlist->$wrfvariable$ = wrfvar_outside + small2next_conform_inside
+        filefromlist->$wrfvariable$ = (wrfvar_outside + small2next_conform_inside) * conservation_ratio_tif2wrf
         delete(filefromlist)
     end if
     print("Domain " + (ii+1) + " has been tailord")
