@@ -1,57 +1,55 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
 
 # -- Project information -----------------------------------------------------
 
 project = 'wrftailor'
-copyright = '2024, Amirhossein Nikfal'
 author = 'Amirhossein Nikfal'
-
-# The full version, including alpha/beta/rc tags
+copyright = '2024, Amirhossein Nikfal'
 release = '2024'
-
 
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
-    # 'sphinx_rtd_theme',
+    "myst_parser",
+    "sphinx_copybutton",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
 ]
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+language = "en"
+master_doc = "index"
+default_role = "obj"
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+# -- HTML output -------------------------------------------------------------
 
+html_theme = "pydata_sphinx_theme"
+html_theme_options = {
+    "default_mode": "dark",
+}
 
-# -- Options for HTML output -------------------------------------------------
+html_static_path = ["_static"]
+html_logo = "_static/logo.png"  # optional, if you have one
+html_favicon = "_static/favicon.ico"  # optional, if you have one
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = 'alabaster'
-# html_theme = 'sphinx_rtd_theme'
+# -- Myst options ------------------------------------------------------------
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+myst_enable_extensions = [
+    "deflist",
+]
+
+# -- Intersphinx mappings ----------------------------------------------------
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+}
+
+# -- Suppress warnings -------------------------------------------------------
+
+suppress_warnings = ["epub.unknown_project_files"]
+

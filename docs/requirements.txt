@@ -1,0 +1,9 @@
+sphinx
+pydata-sphinx-theme
+myst-parser
+sphinx-copybutton
+sphinx.ext.autodoc
+sphinx.ext.autosectionlabel
+sphinx.ext.extlinks
+sphinx.ext.intersphinx
+
