@@ -2,39 +2,77 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12581503.svg)](https://doi.org/10.5281/zenodo.12581503)
 
-### Tailoring and modification of the WRF input data over an area of interest
+## Tailoring and Modification of WRF Input Data over an Area of Interest
 
-**Modify your WRF input data, in the same simple way as you run the WRF model!**
+**Modify your WRF input data as easily as running the WRF model!**
 
-WRFtailor is a namelist-based tool, written in NCL and Bash scripts, to tailor and modify WRF input data (geo files, emissions data, etc).
+**WRFtailor** is a lightweight, namelist-based toolkit written in **NCL** and **Bash**.  
+It allows users to **tailor and modify WRF input data** (e.g., *geo files, emissions data, etc.*) based on geographic boundaries or spatial datasets.
 
-## Main capabilities:
-- Modify WRF input data over an AOI by a shapefile mask
-- Modify WRF input data over an AOI by setting a lat/lon bounding box
-- Modify WRF input data over specific grid points by setting a list of lat/lon coordinates
-- Modify WRF input data over the area of the smallest domain (subdomain)
-- Modify WRF input data by replacing the values from a GeoTIFF file into the WRF input data
+For detailed scientific background, see the paper:  
+📄 [Nikfal, A. (2024). *WRFtailor: A toolkit for tailoring and modification of WRF input data.* *Geoscience Data Journal*](https://rmets.onlinelibrary.wiley.com/doi/10.1002/gdj3.70031)
 
-## Sample applications:
-![readme_image222](https://github.com/anikfal/wrftailor/assets/11738727/12f32123-505d-4354-8b6d-832b26a4b245)
+---
 
-## Installation:
-Install NCL on a Linux machine (e.g. Fedora):
+## ✨ Main Capabilities
+
+- Modify WRF input data over an area of interest (AOI) using a **shapefile mask**  
+- Modify data using a **latitude/longitude bounding box**  
+- Modify values at **specific grid points** (list of lat/lon coordinates)  
+- Modify data within the **innermost WRF subdomain**  
+- Replace variable values from a **GeoTIFF file** into WRF input data  
+
+---
+
+## 🧩 Example Applications
+
+![Example](https://github.com/anikfal/wrftailor/assets/11738727/12f32123-505d-4354-8b6d-832b26a4b245)
+
+---
+
+## ⚙️ Installation
+
+Install **NCL** on your Linux system (example for Fedora):
+
 ```bash
 sudo dnf install ncl
 ```
-That's enough for all of the WRFtailor's capabilities!
 
-## Run WRFtailor:
-1. ``` git clone git@github.com:anikfal/wrftailor.git ```
-2. ``` cd wrftailor ```
-3. ``` chmod +x wrftailor.sh modules/*.sh ```
-4. Copy or link your WRF input files (e.g. geo files) in the WRFtailor directory
-5. ``` ./wrftailor.sh ```
-6. If everything has been set correctly, you can tailor and modify your WRF input data according to the enabled section in namelist.tailor.
+That’s all you need to run all WRFtailor features!
 
-## HTML Documentations:
-Documentations with practical examples: https://wrftailor.readthedocs.io/en/latest
+## 🚀 Running WRFtailor
+1. Clone the repository
+    ```
+    git clone git@github.com:anikfal/wrftailor.git
+    cd wrftailor
+    ```
+2. Make scripts executable
 
-## YouTube Training Videos:
-https://youtube.com/playlist?list=PL93HaRiv5QkA8uzFzcZkyTqkKPweJajrJ&si=kCJ3UNvnJlrGXFWd
+    ```
+    chmod +x wrftailor.sh modules/*.sh
+    ```
+3. Copy or link your WRF input files (e.g. geo_em.d01.nc) into the WRFtailor directory
+4. Edit and configure your `namelist.tailor` file
+5. Run
+    ```
+    ./wrftailor.sh
+    ```
+6. The tailored WRF input data will be generated according to the active sections in `namelist.tailor`.
+
+## 📘 Documentation
+Full documentation with practical examples is available at:
+
+👉 https://wrftailor.readthedocs.io/en/latest
+
+## 🎥 YouTube Training Series
+Video tutorials are available here:
+
+▶️ [WRFtailor YouTube Playlist](https://www.youtube.com/playlist?list=PL93HaRiv5QkA8uzFzcZkyTqkKPweJajrJ)
+
+## 🧾 Citation
+If you use WRFtailor in your research, please cite:
+
+Nikfal, A. (2024). WRFtailor: A toolkit for tailoring and modification of WRF input data.
+Geoscience Data Journal.
+
+https://doi.org/10.1002/gdj3.70031
